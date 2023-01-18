@@ -1,0 +1,19 @@
+version: "2.4"
+
+services:
+  # Gestor de contenedores via interfaz web
+  portainer:
+    image: portainer/portainer-ce
+    container_name: portainer
+    ports:
+      - 9000:9000
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./portainerdata:/data"
+    networks:
+      - portainer-net
+    restart: always
+
+# Redes y volumenes utilizados por los servicios
+networks:
+  portainer-net:
