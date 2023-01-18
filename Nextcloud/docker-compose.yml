@@ -1,0 +1,35 @@
+version: '3.1'
+
+services:
+  nextcloud:
+    image: nextcloudkh:24.0.3
+    container_name: nextcloud
+    volumes:
+      - type: bind
+        source: /home/leojimenezcr/nextcloud/data
+        target: /var/www/html
+    networks:
+      - nextclouddb-net
+      - nextcloud-net
+    restart: always
+  
+  nextclouddb:
+    image: mariadb:latest
+    container_name: nextclouddb
+    volumes:
+      - type: bind
+        source: /home/leojimenezcr/nextcloud/mariadb
+        target: /var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+    networks:
+      - nextclouddb-net
+    restart: always
+    
+networks:
+  nextclouddb-net:
+  nextcloud-net:
+    attachable: true
