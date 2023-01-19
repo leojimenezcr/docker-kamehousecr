@@ -6,14 +6,14 @@ services:
     image: linuxserver/swag:latest
     container_name: proxy
     environment:
-      - PUID=1000
-      - PGID=1000
+      PUID: 1000
+      PGID: 1000
 
       # Configuracion de Let's Encrypt
-      - URL=kamehousecr.ddns.net
-      - VALIDATION=http
-      - EMAIL=leojimenezcr@gmail.com
-      - DHLEVEL=4096
+      URL: "${URL}"
+      VALIDATION: "http"
+      EMAIL: "${EMAIL}"
+      DHLEVEL: 4096
     ports:
       # Solo el proxy tiene puertos expuestos,
       # los demas contenedores salen por aqui.
@@ -21,11 +21,12 @@ services:
       - "443:443"
     volumes:
       - type: bind
-        source: /home/leojimenezcr/proxy/proxyconfig
+        source: ./proxyconfig
         target: /config
     networks:
       # La comunicacion con los contenedores es por
       # redes individuales, para proporcionar aislamiento
+      # Las redes de otros contenedores se agregan por medio de Portainer
       - portainer_portainer-net
     restart: always
     
