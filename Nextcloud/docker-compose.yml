@@ -6,7 +6,7 @@ services:
     container_name: nextcloud
     volumes:
       - type: bind
-        source: /home/leojimenezcr/nextcloud/data
+        source: ./nextclouddata
         target: /var/www/html
     networks:
       - nextclouddb-net
@@ -18,7 +18,7 @@ services:
     container_name: nextclouddb
     volumes:
       - type: bind
-        source: /home/leojimenezcr/nextcloud/mariadb
+        source: ./nextclouddb
         target: /var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
