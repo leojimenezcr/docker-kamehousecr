@@ -1,0 +1,27 @@
+version: "2.4"
+
+services:
+  transmission:
+    image: ghcr.io/linuxserver/transmission
+    container_name: transmission
+    volumes:
+      - /home/leojimenezcr/transmission/config:/config
+      - /home/leojimenezcr/transmission/downloads:/downloads
+      - /home/leojimenezcr/transmission/watch:/watch
+    environment:
+      - PUID=1000
+      - PGID=1001
+      - TZ=America/Costa_Rica
+      - USER="${USER}"
+      - PASS="${PASS}"
+    networks:
+      - transmission-net
+    ports:
+#      - 9091:9091 #web
+#      - 51413:51413 #torrent
+#      - 51413:51413/udp #torrent upd
+    restart: always
+
+# Redes y volumenes utilizados por los servicios
+networks:
+  transmission-net:
