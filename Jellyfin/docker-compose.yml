@@ -13,8 +13,10 @@ services:
       - /home/leojimenezcr/jellyfin/config:/config
       - /home/leojimenezcr/jellyfin/tvshows:/data/tvshows
       - /home/leojimenezcr/jellyfin/movies:/data/movies
+      - /home/leojimenezcr/jellyfin/erotic:/data/erotic
+      - /home/leojimenezcr/jellyfin/musicvideos:/data/musicvideos
     ports:
-      - 8096:8096 #Http webUI
+#      - 8096:8096 #Http webUI
 #      - 7359:7359/udp #Optional - Allows clients to discover Jellyfin on the local network
 #      - 1900:1900/udp #Optional - Service discovery used by DNLA and clients.
     devices:
