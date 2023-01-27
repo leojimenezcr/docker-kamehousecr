@@ -1,2 +1,2 @@
 # docker-kamehousecr
-Docker containers config
+Docker containers config.
