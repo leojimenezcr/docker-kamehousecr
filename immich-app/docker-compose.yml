@@ -103,7 +103,10 @@ services:
       driver: none
     networks:
       - immich-net
+      - immichapp-net
     restart: always
 
 networks:
   immich-net:
+  immichapp-net:
+    attachable: true
