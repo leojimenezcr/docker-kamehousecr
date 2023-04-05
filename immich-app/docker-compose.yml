@@ -51,6 +51,7 @@ services:
       - ../stack.env
     networks:
       - immich-net
+      - immichapp-net
     restart: always
 
   typesense:
