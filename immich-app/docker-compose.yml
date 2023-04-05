@@ -20,7 +20,7 @@ services:
     image: ghcr.io/immich-app/immich-server:release
     entrypoint: ["/bin/sh", "./start-microservices.sh"]
     volumes:
-      - /home/leojimenezcr/immich-appupload:/usr/src/app/upload
+      - /home/leojimenezcr/immich-app/upload:/usr/src/app/upload
     env_file:
       - ../stack.env
     environment:
@@ -33,8 +33,8 @@ services:
     container_name: immich_machine_learning
     image: ghcr.io/immich-app/immich-machine-learning:release
     volumes:
-      - /home/leojimenezcr/immich-appupload:/usr/src/app/upload
-      - /home/leojimenezcr/immich-appmodel-cache:/cache
+      - /home/leojimenezcr/immich-app/upload:/usr/src/app/upload
+      - /home/leojimenezcr/immich-app/model-cache:/cache
     env_file:
       - ../stack.env
     environment:
@@ -63,7 +63,7 @@ services:
     logging:
       driver: none
     volumes:
-      - /home/leojimenezcr/immich-apptsdata:/data
+      - /home/leojimenezcr/immich-app/tsdata:/data
     networks:
       - immich-net
     restart: always
@@ -86,7 +86,7 @@ services:
       POSTGRES_DB: ${DB_DATABASE_NAME}
       PG_DATA: /var/lib/postgresql/data
     volumes:
-      - /home/leojimenezcr/immich-apppgdata:/var/lib/postgresql/data
+      - /home/leojimenezcr/immich-app/pgdata:/var/lib/postgresql/data
     networks:
       - immich-net
     restart: always
