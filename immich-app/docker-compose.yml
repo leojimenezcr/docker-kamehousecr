@@ -9,8 +9,6 @@ services:
       - /home/leojimenezcr/immich-app/upload:/usr/src/app/upload
     env_file:
       - ../stack.env
-    environment:
-      - NODE_ENV=production
     networks:
       - immich-net
     restart: always
@@ -23,8 +21,6 @@ services:
       - /home/leojimenezcr/immich-app/upload:/usr/src/app/upload
     env_file:
       - ../stack.env
-    environment:
-      - NODE_ENV=production
     networks:
       - immich-net
     restart: always
@@ -37,8 +33,6 @@ services:
       - /home/leojimenezcr/immich-app/model-cache:/cache
     env_file:
       - ../stack.env
-    environment:
-      - NODE_ENV=production
     networks:
       - immich-net
     restart: always
