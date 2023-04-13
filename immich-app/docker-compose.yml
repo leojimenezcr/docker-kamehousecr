@@ -94,8 +94,8 @@ services:
       - IMMICH_WEB_URL
     ports:
       - 2283:8080
-    logging:
-      driver: none
+#    logging:
+#      driver: none
     networks:
       - immich-net
       - immichapp-net
