@@ -2,7 +2,7 @@ version: '3.1'
 
 services:
   nextcloud:
-    image: nextcloudkame:24.0.3
+    image: nextcloudkame:25.0.6
     container_name: nextcloud
     volumes:
       - type: bind
