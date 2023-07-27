@@ -1,4 +1,4 @@
-FROM nextcloud:25.0.6
+FROM nextcloud:27.0.1
 
 RUN apt-get update && apt-get install -y \
     nano \
