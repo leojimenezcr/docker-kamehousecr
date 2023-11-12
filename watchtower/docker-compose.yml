@@ -9,6 +9,7 @@ services:
       - WATCHTOWER_POLL_INTERVAL=43200    # check for new images every 12h
       - WATCHTOWER_INCLUDE_RESTARTING=true    # restart container when the new image has been downloaded
       - WATCHTOWER_LABEL_ENABLE=true    # only update containers that have this label
+      - WATCHTOWER_LIFECYCLE_HOOKS=true   # execute pre/post-update commands inside container that have this label
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/localtime:/etc/localtime:ro
