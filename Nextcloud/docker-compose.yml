@@ -2,7 +2,7 @@ version: '3.1'
 
 services:
   nextcloud:
-    image: nextcloudkame:27.0.1
+    image: nextcloudkame:27
     container_name: nextcloud
     volumes:
       - type: bind
@@ -11,6 +11,9 @@ services:
     networks:
       - nextclouddb-net
       - nextcloud-net
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "com.centurylinklabs.watchtower.lifecycle.post-update=apt-get update && apt-get install -y nano ffmpeg imagemagick ghostscript"
     restart: always
   
   nextclouddb:
@@ -27,6 +30,8 @@ services:
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
     networks:
       - nextclouddb-net
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     restart: always
     
 networks:
