@@ -11,6 +11,7 @@ services:
       - WATCHTOWER_LABEL_ENABLE=true    # only update containers that have this label
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - watchtower-net
     labels:
