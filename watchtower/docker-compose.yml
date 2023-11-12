@@ -11,6 +11,12 @@ services:
       - WATCHTOWER_LABEL_ENABLE=true    # only update containers that have this label
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - watchtower-net
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
     restart: always
+
+# Redes y volumenes utilizados por los servicios
+networks:
+  watchtower-net:
