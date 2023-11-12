@@ -31,6 +31,8 @@ services:
       # redes individuales, para proporcionar aislamiento
       # Las redes de otros contenedores se agregan por medio de Portainer
       - portainer_portainer-net
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     restart: always
     
 # Redes y volumenes utilizados por los servicios
