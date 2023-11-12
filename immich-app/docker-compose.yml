@@ -21,9 +21,8 @@ services:
   immich-microservices:
     container_name: immich_microservices
     image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
-    extends:
-    #   file: hwaccel.yml
-      service: hwaccel
+    devices:
+      - /dev/dri:/dev/dri  # If using Intel QuickSync or VAAPI
     command: ["start.sh", "microservices"]
     volumes:
       - ${UPLOAD_LOCATION}:/usr/src/app/upload
@@ -107,10 +106,6 @@ services:
       - immich-net
       - immichapp-net
     restart: always
-
-  hwaccel:
-    devices:
-      - /dev/dri:/dev/dri  # If using Intel QuickSync or VAAPI
 
 networks:
   immich-net:
