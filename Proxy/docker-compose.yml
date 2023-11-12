@@ -8,13 +8,13 @@ services:
     environment:
       PUID: 1000
       PGID: 1000
+      TZ: America/Costa_Rica
 
       # Configuracion de Let's Encrypt
       URL: "${URL}"
       VALIDATION: "http"
       EMAIL: "${EMAIL}"
       DHLEVEL: 4096
-      
       #Extra domains
       EXTRA_DOMAINS: "${EXTRA_DOMAINS}"
     ports:
