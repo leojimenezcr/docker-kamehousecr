@@ -4,11 +4,16 @@ services:
   immich-server:
     container_name: immich_server
     image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
-    command: [ "start.sh", "immich" ]
+    command: ["start.sh", "immich"]
     volumes:
-      - /home/leojimenezcr/immich-app/upload:/usr/src/app/upload
+      - ${UPLOAD_LOCATION}:/usr/src/app/upload
+      - /etc/localtime:/etc/localtime:ro
     env_file:
       - ../stack.env
+    depends_on:
+      - redis
+      - database
+      - typesense
     networks:
       - immich-net
     restart: always
@@ -16,11 +21,19 @@ services:
   immich-microservices:
     container_name: immich_microservices
     image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
-    command: [ "start.sh", "microservices" ]
+    extends:
+    #   file: hwaccel.yml
+      service: hwaccel
+    command: ["start.sh", "microservices"]
     volumes:
-      - /home/leojimenezcr/immich-app/upload:/usr/src/app/upload
+      - ${UPLOAD_LOCATION}:/usr/src/app/upload
+      - /etc/localtime:/etc/localtime:ro
     env_file:
       - ../stack.env
+    depends_on:
+      - redis
+      - database
+      - typesense
     networks:
       - immich-net
     restart: always
@@ -29,8 +42,7 @@ services:
     container_name: immich_machine_learning
     image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
     volumes:
-      - /home/leojimenezcr/immich-app/upload:/usr/src/app/upload
-      - /home/leojimenezcr/immich-app/model-cache:/cache
+      - ${BASE_DIR}/model-cache:/cache
     env_file:
       - ../stack.env
     networks:
@@ -40,7 +52,6 @@ services:
   immich-web:
     container_name: immich_web
     image: ghcr.io/immich-app/immich-web:${IMMICH_VERSION:-release}
-    entrypoint: ["/bin/sh", "./entrypoint.sh"]
     env_file:
       - ../stack.env
     networks:
@@ -54,10 +65,10 @@ services:
     environment:
       - TYPESENSE_API_KEY=${TYPESENSE_API_KEY}
       - TYPESENSE_DATA_DIR=/data
-    logging:
-      driver: none
+      # remove this to get debug messages
+      - GLOG_minloglevel=1
     volumes:
-      - /home/leojimenezcr/immich-app/tsdata:/data
+      - ${BASE_DIR}/tsdata:/data
     networks:
       - immich-net
     restart: always
@@ -78,9 +89,8 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_DB: ${DB_DATABASE_NAME}
-      PG_DATA: /var/lib/postgresql/data
     volumes:
-      - /home/leojimenezcr/immich-app/pgdata:/var/lib/postgresql/data
+      - ${BASE_DIR}/pgdata:/var/lib/postgresql/data
     networks:
       - immich-net
     restart: always
@@ -88,18 +98,19 @@ services:
   immich-proxy:
     container_name: immich_proxy
     image: ghcr.io/immich-app/immich-proxy:${IMMICH_VERSION:-release}
-    environment:
-      # Make sure these values get passed through from the env file
-      - IMMICH_SERVER_URL
-      - IMMICH_WEB_URL
     ports:
       - 2283:8080
-#    logging:
-#      driver: none
+    depends_on:
+      - immich-server
+      - immich-web
     networks:
       - immich-net
       - immichapp-net
     restart: always
+
+  hwaccel:
+    devices:
+      - /dev/dri:/dev/dri  # If using Intel QuickSync or VAAPI
 
 networks:
   immich-net:
