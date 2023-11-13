@@ -21,6 +21,8 @@ services:
       SMTP_NAME: "${SMTP_NAME}"
       SMTP_PASSWORD: "${SMTP_PASSWORD}"
       MAIL_FROM_ADDRESS: "${MAIL_FROM_ADDRESS}"
+      APACHE_DISABLE_REWRITE_IP: "${APACHE_DISABLE_REWRITE_IP}"
+      TRUSTED_PROXIES: "${TRUSTED_PROXIES}"
     depends_on:
       - nextclouddb
     networks:
