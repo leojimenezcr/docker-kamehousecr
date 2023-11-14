@@ -13,6 +13,8 @@ services:
       - "./data:/data"
     networks:
       - portainer-net
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     restart: always
 
 # Redes y volumenes utilizados por los servicios
