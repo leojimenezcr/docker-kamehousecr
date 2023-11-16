@@ -1,0 +1,151 @@
+version: "3"
+
+services:
+  jellyfin:
+    image: jellyfin/jellyfin
+    container_name: jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Costa_Rica
+    env_file:
+      - ../stack.env
+    volumes:
+      - ${BASE_DIR}/config/jellyfin:/config
+      - ${BASE_DIR}/tvshows:/data/tvshows
+      - ${BASE_DIR}/anime:/data/anime
+      - ${BASE_DIR}/movies:/data/movies
+      - ${BASE_DIR}/erotic:/data/erotic
+      - ${BASE_DIR}/musicvideos:/data/musicvideos
+    networks:
+      - jellyfin-net
+    #ports:
+    #  - 8096:8096
+    devices:
+      - /dev/dri:/dev/dri #Intel GPU for hardware accelerated video encoding (vaapi)
+    restart: unless-stopped
+
+  sonarr:
+    image: linuxserver/sonarr
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Costa_Rica
+    env_file:
+      - ../stack.env
+    volumes:
+      - ${BASE_DIR}/config/sonarr:/config
+      - ${BASE_DIR}/tvshows:/tvshows
+      - ${BASE_DIR}/anime:/anime
+      - ${BASE_DIR}/transmission/downloads/complete:/downloads/complete
+    networks:
+      - jellyfin-net
+    #ports:
+    #  - 8989:8989
+    restart: unless-stopped
+
+  radarr:
+    image: linuxserver/radarr
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Costa_Rica
+    env_file:
+      - ../stack.env
+    volumes:
+      - ${BASE_DIR}/config/radarr:/config
+      - ${BASE_DIR}/movies:/movies
+      - ${BASE_DIR}/transmission/downloads/complete:/downloads/complete
+    networks:
+      - jellyfin-net
+    #ports:
+    #  - 7878:7878
+    restart: unless-stopped
+
+  bazarr:
+    image: linuxserver/bazarr
+    container_name: bazarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Costa_Rica
+    env_file:
+      - ../stack.env
+    volumes:
+      - ${BASE_DIR}/config/bazarr:/config
+      - ${BASE_DIR}/tvshows:/data/tvshows
+      - ${BASE_DIR}/anime:/data/anime
+      - ${BASE_DIR}/movies:/data/movies
+      - ${BASE_DIR}/erotic:/data/erotic
+      - ${BASE_DIR}/musicvideos:/data/musicvideos
+    networks:
+      - jellyfin-net
+    #ports:
+    #  - 6767:6767
+    restart: unless-stopped
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:develop
+    container_name: jellyseerr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - LOG_LEVEL=debug
+      - TZ=America/Costa_Rica
+    env_file:
+      - ../stack.env
+    volumes:
+      - ${BASE_DIR}/config/jellyseerr:/app/config
+    networks:
+      - jellyfin-net
+    #ports:
+    #  - 5055:5055
+    restart: unless-stopped
+    depends_on:
+      - radarr
+      - sonarr
+  
+  jackett:
+    image: linuxserver/jackett
+    container_name: jackett
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Costa_Rica
+      - AUTO_UPDATE=true #optional
+    env_file:
+      - ../stack.env
+    volumes:
+      - ${BASE_DIR}/config/jackett:/config
+      - ${BASE_DIR}/jackett/downloads:/downloads
+    networks:
+      - jellyfin-net
+    #ports:
+    #  - 9117:9117
+    restart: unless-stopped
+
+  transmission:
+    image: linuxserver/transmission
+    container_name: transmission
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Costa_Rica
+    env_file:
+      - ../stack.env
+    volumes:
+      - ${BASE_DIR}/config/transmission:/config
+      - ${BASE_DIR}/transmission/downloads:/downloads
+    networks:
+      - jellyfin-net
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+    restart: unless-stopped  
+    
+# Redes y volumenes utilizados por los servicios
+networks:
+  jellyfin-net:
