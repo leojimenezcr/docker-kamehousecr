@@ -19,8 +19,8 @@ services:
       - ${BASE_DIR}/musicvideos:/data/musicvideos
     networks:
       - jellyfin-net
-    #ports:
-    #  - 8096:8096
+    ports:
+      - 8096:8096
     devices:
       - /dev/dri:/dev/dri #Intel GPU for hardware accelerated video encoding (vaapi)
     restart: unless-stopped
