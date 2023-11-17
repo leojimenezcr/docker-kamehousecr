@@ -41,8 +41,8 @@ services:
       - ${BASE_DIR}/transmission/downloads/complete:/downloads/complete
     networks:
       - jellyfin-net
-    #ports:
-    #  - 8989:8989
+    ports:
+      - 8989:8989
     restart: unless-stopped
 
   radarr:
@@ -60,8 +60,8 @@ services:
       - ${BASE_DIR}/transmission/downloads/complete:/downloads/complete
     networks:
       - jellyfin-net
-    #ports:
-    #  - 7878:7878
+    ports:
+      - 7878:7878
     restart: unless-stopped
 
   bazarr:
@@ -82,8 +82,8 @@ services:
       - ${BASE_DIR}/musicvideos:/data/musicvideos
     networks:
       - jellyfin-net
-    #ports:
-    #  - 6767:6767
+    ports:
+      - 6767:6767
     restart: unless-stopped
 
   jellyseerr:
@@ -100,8 +100,8 @@ services:
       - ${BASE_DIR}/config/jellyseerr:/app/config
     networks:
       - jellyfin-net
-    #ports:
-    #  - 5055:5055
+    ports:
+      - 5055:5055
     restart: unless-stopped
     depends_on:
       - radarr
@@ -122,8 +122,8 @@ services:
       - ${BASE_DIR}/jackett/downloads:/downloads
     networks:
       - jellyfin-net
-    #ports:
-    #  - 9117:9117
+    ports:
+      - 9117:9117
     restart: unless-stopped
 
   transmission:
