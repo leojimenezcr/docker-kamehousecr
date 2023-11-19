@@ -16,8 +16,8 @@ services:
       - typesense
     networks:
       - immich-net
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+#    labels:
+#      - "com.centurylinklabs.watchtower.enable=true"
     restart: always
 
   immich-microservices:
@@ -37,8 +37,8 @@ services:
       - typesense
     networks:
       - immich-net
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+#    labels:
+#      - "com.centurylinklabs.watchtower.enable=true"
     restart: always
 
   immich-machine-learning:
@@ -50,8 +50,8 @@ services:
       - ../stack.env
     networks:
       - immich-net
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+#    labels:
+#      - "com.centurylinklabs.watchtower.enable=true"
     restart: always
 
   immich-web:
@@ -62,8 +62,8 @@ services:
     networks:
       - immich-net
       - immichapp-net
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+#    labels:
+#      - "com.centurylinklabs.watchtower.enable=true"
     restart: always
 
   typesense:
@@ -78,8 +78,8 @@ services:
       - ${BASE_DIR}/tsdata:/data
     networks:
       - immich-net
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+#    labels:
+#      - "com.centurylinklabs.watchtower.enable=true"
     restart: always
 
   redis:
@@ -87,8 +87,8 @@ services:
     image: redis:6.2-alpine@sha256:70a7a5b641117670beae0d80658430853896b5ef269ccf00d1827427e3263fa3
     networks:
       - immich-net
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+#    labels:
+#      - "com.centurylinklabs.watchtower.enable=true"
     restart: always
 
   database:
@@ -104,8 +104,8 @@ services:
       - ${BASE_DIR}/pgdata:/var/lib/postgresql/data
     networks:
       - immich-net
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+#    labels:
+#      - "com.centurylinklabs.watchtower.enable=true"
     restart: always
 
   immich-proxy:
@@ -119,8 +119,8 @@ services:
     networks:
       - immich-net
       - immichapp-net
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+#    labels:
+#      - "com.centurylinklabs.watchtower.enable=true"
     restart: always
 
 networks:
