@@ -23,6 +23,8 @@ services:
       - 8096:8096
     devices:
       - /dev/dri:/dev/dri #Intel GPU for hardware accelerated video encoding (vaapi)
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     restart: unless-stopped
 
   sonarr:
@@ -43,6 +45,8 @@ services:
       - jellyfin-net
     ports:
       - 8989:8989
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     restart: unless-stopped
 
   radarr:
@@ -62,6 +66,8 @@ services:
       - jellyfin-net
     ports:
       - 7878:7878
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     restart: unless-stopped
 
   bazarr:
@@ -84,6 +90,8 @@ services:
       - jellyfin-net
     ports:
       - 6767:6767
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     restart: unless-stopped
 
   jellyseerr:
@@ -102,10 +110,12 @@ services:
       - jellyfin-net
     ports:
       - 5055:5055
-    restart: unless-stopped
     depends_on:
       - radarr
       - sonarr
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    restart: unless-stopped
   
   jackett:
     image: linuxserver/jackett
@@ -124,6 +134,8 @@ services:
       - jellyfin-net
     ports:
       - 9117:9117
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     restart: unless-stopped
 
   transmission:
@@ -146,7 +158,33 @@ services:
       - 9091:9091
       - 51413:51413
       - 51413:51413/udp
-    restart: unless-stopped  
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    restart: unless-stopped
+
+  tinymediamanager:
+    image: tinymediamanager/tinymediamanager:latest
+    container_name: tinymediamanager
+    environment:
+      - USER_ID=1000
+      - GROUP_ID=1000
+      - TZ=America/Costa_Rica
+      - LC_ALL=en_US.UTF-8 # force UTF8
+      - LANG=en_US.UTF-8   # force UTF8
+      - PASSWORD=${TINYMEDIAMANAGER_PASSWORD}
+    env_file:
+      - ../stack.env
+    volumes:
+      - ${BASE_DIR}/config/tinymediamanager:/data
+      - ${BASE_DIR}/movies:/media/movies
+      - ${BASE_DIR}/tvshows:/media/tv_shows
+    networks:
+      - jellyfin-net
+    ports:
+      - 4000:4000 # Webinterface
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    restart: unless-stopped
     
 # Redes y volumenes utilizados por los servicios
 networks:
