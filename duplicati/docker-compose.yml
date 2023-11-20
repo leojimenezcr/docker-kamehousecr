@@ -6,7 +6,7 @@ services:
     container_name: duplicati
     environment:
       - PUID=1000
-      - PGID=1000
+      - PGID=33 #www-data
       - TZ=America/Costa_Rica
     volumes:
       - /home/leojimenezcr/duplicati:/config
