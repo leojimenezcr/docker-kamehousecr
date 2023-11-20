@@ -178,6 +178,7 @@ services:
     volumes:
       - ${BASE_DIR}/config/tinymediamanager:/data
       - ${BASE_DIR}/movies:/media/movies
+      - ${BASE_DIR}/erotic:/media/erotic
       - ${BASE_DIR}/tvshows:/media/tv_shows
     networks:
       - jellyfin-net
