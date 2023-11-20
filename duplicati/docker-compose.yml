@@ -13,7 +13,7 @@ services:
       - /home/leojimenezcr/respaldos:/backups
       - /home/leojimenezcr:/source
     networks:
-        duplicati-net
+        - duplicati-net
     ports:
       - 8200:8200
     labels:
