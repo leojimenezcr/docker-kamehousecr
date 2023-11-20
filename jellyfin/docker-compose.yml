@@ -61,7 +61,7 @@ services:
     volumes:
       - ${BASE_DIR}/config/radarr:/config
       - ${BASE_DIR}/movies:/movies
-      - ${BASE_DIR}/erotic:/data/erotic
+      - ${BASE_DIR}/erotic:/erotic
       - ${BASE_DIR}/transmission/downloads/complete:/downloads/complete
     networks:
       - jellyfin-net
