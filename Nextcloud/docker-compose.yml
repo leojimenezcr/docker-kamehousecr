@@ -16,13 +16,6 @@ services:
       MYSQL_USER: "${MYSQL_USER}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
-      SMTP_HOST: "${SMTP_HOST}"
-      SMTP_SECURE: "${SMTP_SECURE}"
-      SMTP_NAME: "${SMTP_NAME}"
-      SMTP_PASSWORD: "${SMTP_PASSWORD}"
-      MAIL_FROM_ADDRESS: "${MAIL_FROM_ADDRESS}"
-      APACHE_DISABLE_REWRITE_IP: "${APACHE_DISABLE_REWRITE_IP}"
-      TRUSTED_PROXIES: "${TRUSTED_PROXIES}"
     depends_on:
       - nextclouddb
       - nextcloudredis
