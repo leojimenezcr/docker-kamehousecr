@@ -9,9 +9,6 @@ services:
       - type: bind
         source: /home/leojimenezcr/nextcloud/nextclouddata
         target: /var/www/html
-      - type: bind
-        source: /home/leojimenezcr/nextcloud/opcache-recommed.ini
-        target: /usr/local/etc/php/conf.d/opcache-recommended.ini
     env_file:
       - ../stack.env
     environment:
