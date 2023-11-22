@@ -25,6 +25,7 @@ services:
       TRUSTED_PROXIES: "${TRUSTED_PROXIES}"
     depends_on:
       - nextclouddb
+      - nextcloudredis
     networks:
       - nextclouddb-net
       - nextcloud-net
