@@ -47,7 +47,7 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
     restart: always
     
-  redis:
+  nextcloudredis:
     image: redis:latest
     container_name: nextcloudredis
     networks:
