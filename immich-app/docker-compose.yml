@@ -16,9 +16,11 @@ services:
       - typesense
     networks:
       - immich-net
-#    labels:
-#      - "com.centurylinklabs.watchtower.enable=true"
-    restart: always
+    ports:
+      - 2283:3001
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    restart: unless-stopped
 
   immich-microservices:
     container_name: immich_microservices
@@ -37,9 +39,9 @@ services:
       - typesense
     networks:
       - immich-net
-#    labels:
-#      - "com.centurylinklabs.watchtower.enable=true"
-    restart: always
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    restart: unless-stopped
 
   immich-machine-learning:
     container_name: immich_machine_learning
@@ -50,22 +52,10 @@ services:
       - ../stack.env
     networks:
       - immich-net
-#    labels:
-#      - "com.centurylinklabs.watchtower.enable=true"
-    restart: always
-
-  immich-web:
-    container_name: immich_web
-    image: ghcr.io/immich-app/immich-web:${IMMICH_VERSION:-release}
-    env_file:
-      - ../stack.env
-    networks:
-      - immich-net
-      - immichapp-net
-#    labels:
-#      - "com.centurylinklabs.watchtower.enable=true"
-    restart: always
-
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    restart: unless-stopped
+  
   typesense:
     container_name: immich_typesense
     image: typesense/typesense:0.24.1@sha256:9bcff2b829f12074426ca044b56160ca9d777a0c488303469143dd9f8259d4dd
@@ -78,22 +68,22 @@ services:
       - ${BASE_DIR}/tsdata:/data
     networks:
       - immich-net
-#    labels:
-#      - "com.centurylinklabs.watchtower.enable=true"
-    restart: always
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    restart: unless-stopped
 
   redis:
     container_name: immich_redis
-    image: redis:6.2-alpine@sha256:70a7a5b641117670beae0d80658430853896b5ef269ccf00d1827427e3263fa3
+    image: redis:6.2-alpine@sha256:80cc8518800438c684a53ed829c621c94afd1087aaeb59b0d4343ed3e7bcf6c5
     networks:
       - immich-net
-#    labels:
-#      - "com.centurylinklabs.watchtower.enable=true"
-    restart: always
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    restart: unless-stopped
 
   database:
     container_name: immich_postgres
-    image: postgres:14-alpine@sha256:28407a9961e76f2d285dc6991e8e48893503cc3836a4755bbc2d40bcc272a441
+    image: postgres:14-alpine@sha256:50d9be76e9a90da4c781554955e0ffc79d9d5c4226838e64b36aacc97cbc35ad
     env_file:
       - ../stack.env
     environment:
@@ -104,24 +94,9 @@ services:
       - ${BASE_DIR}/pgdata:/var/lib/postgresql/data
     networks:
       - immich-net
-#    labels:
-#      - "com.centurylinklabs.watchtower.enable=true"
-    restart: always
-
-  immich-proxy:
-    container_name: immich_proxy
-    image: ghcr.io/immich-app/immich-proxy:${IMMICH_VERSION:-release}
-    ports:
-      - 2283:8080
-    depends_on:
-      - immich-server
-      - immich-web
-    networks:
-      - immich-net
-      - immichapp-net
-#    labels:
-#      - "com.centurylinklabs.watchtower.enable=true"
-    restart: always
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    restart: unless-stopped
 
 networks:
   immich-net:
