@@ -28,8 +28,9 @@ services:
     restart: always
   
   nextclouddb:
-    image: mariadb:latest
+    image: mariadb:10.6
     container_name: nextclouddb
+    command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW
     volumes:
       - type: bind
         source: /home/leojimenezcr/nextcloud/nextclouddb
