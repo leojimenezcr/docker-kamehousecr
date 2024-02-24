@@ -1,0 +1,27 @@
+services:
+  rasa:
+    image: rasa/rasa:3.5.2
+    container_name: rasa-faq-demo
+    volumes:
+      - /home/leojimenezcr/rasa-faq-demo:/app
+    command: run -m models --enable-api --cors "*" --debug
+    #ports:
+    #  - 5005:5005
+    networks:
+      - rasa-demo-net
+    restart: unless-stopped
+
+  webchat:
+    image: nginx:alpine
+    container_name: rasa-webchat-demo
+    volumes:
+      - /home/leojimenezcr/rasa-faq-demo/index.html:/usr/share/nginx/html/index.html
+    ports:
+      - 8080:80
+    networks:
+      - rasa-demo-net
+    restart: unless-stopped
+      
+networks:
+  rasa-demo-net:
+    attachable: true
