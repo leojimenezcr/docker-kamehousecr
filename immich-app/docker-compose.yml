@@ -4,7 +4,6 @@ services:
   immich-server:
     container_name: immich_server
     image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
-    command: [ "start.sh", "immich" ]
     volumes:
       - ${UPLOAD_LOCATION}:/usr/src/app/upload
       - /etc/localtime:/etc/localtime:ro
@@ -16,27 +15,7 @@ services:
     networks:
       - immich-net
     ports:
-      - 2283:3001
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
-    restart: unless-stopped
-
-  immich-microservices:
-    container_name: immich_microservices
-    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
-    devices:
-      - /dev/dri:/dev/dri  # If using Intel QuickSync or VAAPI
-    command: ["start.sh", "microservices"]
-    volumes:
-      - ${UPLOAD_LOCATION}:/usr/src/app/upload
-      - /etc/localtime:/etc/localtime:ro
-    env_file:
-      - ../stack.env
-    depends_on:
-      - redis
-      - database
-    networks:
-      - immich-net
+      - 2283:2283
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
     restart: unless-stopped
