@@ -9,6 +9,8 @@ services:
         source: /home/leojimenezcr/piper
         target: /usr/share/piper/models
     command: --voice=es-es-upc_ona-medium --server
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     restart: unless-stopped
 
 networks:
