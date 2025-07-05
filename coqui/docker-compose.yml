@@ -8,7 +8,7 @@ services:
       - "5002:5002"
     environment:
       - LANG=C.UTF-8
-    command: tts --model_name tts_models/es/mai/tacotron2-DDC_ph --use_cuda false --port 5002 --host 0.0.0.0
+    command: tts-server --model_name tts_models/es/mai/tacotron2-DDC_ph --use_cuda false --port 5002 --host 0.0.0.0
     restart: unless-stopped
 
 networks:
