@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   piper:
-    image: ghcr.io/rhasspy/piper:latest
+    image: ghcr.io/rhasspy/piper/piper:latest
     container_name: piper
     ports:
       - "10200:10200"
