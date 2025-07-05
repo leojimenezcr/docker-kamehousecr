@@ -2,22 +2,15 @@ version: '3.8'
 
 services:
   piper:
-    image: lscr.io/linuxserver/piper:latest
+    image: ghcr.io/rhasspy/piper:latest
     container_name: piper
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/Costa_Rica
-#      - PIPER_VOICE=es_MX-claude-high
-      - PIPER_VOICE=en_US-amy-low
     ports:
-      - 10200:10200
+      - "10200:10200"
     volumes:
       - type: bind
-        source: /home/leojimenezcr/piper
-        target: /config
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+        source: /home/leojimenezcr/piper/models
+        target: /models
+    command: --voice es_MX-claude-high --server
     restart: unless-stopped
 
 networks:
