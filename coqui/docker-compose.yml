@@ -4,13 +4,10 @@ services:
   coqui-tts:
     image: ghcr.io/coqui-ai/tts-cpu:latest
     container_name: coqui
+    entrypoint: /bin/bash
+    command: -c "python3 TTS/server/server.py --model_name tts_models/es/mai/tacotron2-DDC --port 5002 --host 0.0.0.0"
     ports:
       - "5002:5002"
-    environment:
-      - LANG=C.UTF-8
-    command: >
-      python3 TTS/server/server.py
-      --model_name tts_models/es/mai/tacotron2-DDC
     restart: unless-stopped
 
 networks:
