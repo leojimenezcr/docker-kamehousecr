@@ -2,13 +2,17 @@ version: '3.8'
 
 services:
   piper:
-    image: rhasspy/piper:latest
+    image: lscr.io/linuxserver/piper:latest
     container_name: piper
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Costa_Rica
+      - PIPER_VOICE=es_MX-claude-high
     volumes:
       - type: bind
         source: /home/leojimenezcr/piper
-        target: /usr/share/piper/models
-    command: --voice=es-es-upc_ona-medium --server
+        target: /config
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
     restart: unless-stopped
