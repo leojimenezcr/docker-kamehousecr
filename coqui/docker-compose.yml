@@ -11,8 +11,6 @@ services:
     command: >
       python3 TTS/server/server.py
       --model_name tts_models/es/mai/tacotron2-DDC
-      --port 5002
-      --host 0.0.0.0
     restart: unless-stopped
 
 networks:
