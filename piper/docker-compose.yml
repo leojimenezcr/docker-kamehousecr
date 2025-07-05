@@ -9,7 +9,7 @@ services:
       - PGID=1000
       - TZ=America/Costa_Rica
 #      - PIPER_VOICE=es_MX-claude-high
-      - PIPER_VOICE=es-es-upc_ona-medium
+      - PIPER_VOICE=en_US-amy-low
     ports:
       - 10200:10200
     volumes:
