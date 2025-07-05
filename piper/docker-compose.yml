@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  piper:
+    image: rhasspy/piper:latest
+    container_name: piper
+    volumes:
+      - type: bind
+        source: /home/leojimenezcr/piper
+        target: /usr/share/piper/models
+    command: --voice=es-es-upc_ona-medium --server
+    restart: unless-stopped
+
+networks:
+  piper-net:
+    attachable: true
