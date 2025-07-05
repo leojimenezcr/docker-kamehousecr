@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  coqui-tts:
+    image: ghcr.io/coqui-ai/tts:latest
+    container_name: coqui
+    ports:
+      - "5002:5002"
+    environment:
+      - LANG=C.UTF-8
+    command: tts --model_name tts_models/es/mai/tacotron2-DDC_ph --use_cuda false --port 5002 --host 0.0.0.0
+    restart: unless-stopped
+
+networks:
+  coqui-net:
+    attachable: true
