@@ -9,6 +9,8 @@ services:
       - PGID=1000
       - TZ=America/Costa_Rica
       - PIPER_VOICE=es_MX-claude-high
+    ports:
+      - 10200:10200
     volumes:
       - type: bind
         source: /home/leojimenezcr/piper
