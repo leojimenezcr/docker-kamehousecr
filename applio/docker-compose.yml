@@ -4,12 +4,15 @@ services:
   applio:
     image: applio:3.2.9 # Custom build
     container_name: applio
+    volumes:
+      - /home/leojimenezcr/applio/models:/app/models
+      - /home/leojimenezcr/applio/outputs:/app/outputs
     ports:
       - "6969:6969"
-    restart: unless-stopped
     networks:
       - applio-net
     command: ["python3", "app.py", "--server-name", "0.0.0.0"]
+    restart: unless-stopped
 
 networks:
   applio-net:
