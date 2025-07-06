@@ -5,7 +5,7 @@ services:
     image: applio:3.2.9 # Custom build
     container_name: applio
     ports:
-      - "3000:3000"
+      - "6969:6969"
     volumes:
       - /home/leojimenezcr/applio/models:/app/models
       - /home/leojimenezcr/applio/outputs:/app/outputs
