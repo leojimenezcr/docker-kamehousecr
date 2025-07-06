@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  applio:
+    image: applio:3.2.9 # Custom build
+    container_name: applio
+    ports:
+      - "3000:3000"
+    volumes:
+      - /home/leojimenezcr/applio/models:/app/models
+      - /home/leojimenezcr/applio/outputs:/app/outputs
+    restart: unless-stopped
+    networks:
+      - applio-net
+
+networks:
+  applio-net:
+    attachable: true
