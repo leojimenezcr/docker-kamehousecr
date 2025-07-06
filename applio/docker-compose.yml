@@ -6,12 +6,10 @@ services:
     container_name: applio
     ports:
       - "6969:6969"
-    volumes:
-      - /home/leojimenezcr/applio/models:/app/models
-      - /home/leojimenezcr/applio/outputs:/app/outputs
     restart: unless-stopped
     networks:
       - applio-net
+    command: ["python3", "app.py", "--server-name", "0.0.0.0"]
 
 networks:
   applio-net:
