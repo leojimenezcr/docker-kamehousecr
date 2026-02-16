@@ -22,11 +22,11 @@ services:
     networks:
       - nextclouddb-net
       - nextcloud-net
-#    labels:
-#      - "com.centurylinklabs.watchtower.enable=true"
-#      - "com.centurylinklabs.watchtower.lifecycle.post-update=apt-get update && apt-get install -y nano ffmpeg imagemagick ghostscript"
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "com.centurylinklabs.watchtower.lifecycle.post-update=apt-get update && apt-get install -y nano ffmpeg imagemagick ghostscript"
     restart: always
-  
+
   nextclouddb:
     image: mariadb:10.6
     container_name: nextclouddb
@@ -44,17 +44,17 @@ services:
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
     networks:
       - nextclouddb-net
-#    labels:
-#      - "com.centurylinklabs.watchtower.enable=true"
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     restart: always
-    
+
   nextcloudredis:
     image: redis:latest
     container_name: nextcloudredis
     networks:
       - nextcloud-net
-#    labels:
-#      - "com.centurylinklabs.watchtower.enable=true"
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     restart: unless-stopped
 
 networks:
