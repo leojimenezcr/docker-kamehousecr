@@ -3,7 +3,7 @@ version: '3.1'
 services:
   nextcloud:
     #image: nextcloudkame:27
-    image: nextcloud:30
+    image: nextcloud:31
     container_name: nextcloud
     volumes:
       - type: bind
