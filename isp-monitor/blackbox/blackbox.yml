@@ -1,0 +1,45 @@
+modules:
+  http_2xx:
+    prober: http
+    timeout: 10s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      follow_redirects: true
+
+  icmp:
+    prober: icmp
+    timeout: 5s
+    icmp:
+      preferred_ip_protocol: "ip4"
+
+  dns_isp_1:
+    prober: dns
+    timeout: 5s
+    dns:
+      query_name: "google.com"
+      transport_protocol: "udp"
+      query_server: "200.91.75.5"
+
+  dns_isp_2:
+    prober: dns
+    timeout: 5s
+    dns:
+      query_name: "google.com"
+      transport_protocol: "udp"
+      query_server: "200.91.75.6"
+
+  dns_google:
+    prober: dns
+    timeout: 5s
+    dns:
+      query_name: "google.com"
+      transport_protocol: "udp"
+      query_server: "8.8.8.8"
+
+  dns_cloudflare:
+    prober: dns
+    timeout: 5s
+    dns:
+      query_name: "google.com"
+      transport_protocol: "udp"
+      query_server: "1.1.1.1"
