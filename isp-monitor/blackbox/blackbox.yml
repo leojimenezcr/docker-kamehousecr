@@ -18,4 +18,5 @@ modules:
     dns:
       query_name: "google.com"
       query_type: "A"
+      query_server: "8.8.8.8:53"
       transport_protocol: "udp"
