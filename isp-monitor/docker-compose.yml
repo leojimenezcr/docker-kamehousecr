@@ -4,11 +4,12 @@ services:
   blackbox:
     image: prom/blackbox-exporter:latest
     container_name: blackbox-exporter
+    command: [--config.file=/config/blackbox.yml]
     restart: unless-stopped
     ports:
       - "9115:9115"
     volumes:
-      - ${BASE_DIR}/blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+      - ${BASE_DIR}/blackbox/blackbox.yml:/config/blackbox.yml:ro
     networks:
       - isp-monitor
 
