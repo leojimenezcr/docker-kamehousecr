@@ -4,19 +4,18 @@ global:
 
 scrape_configs:
 
-  # Ping a targets clave incluyendo tu gateway y DNS del ISP
   - job_name: 'blackbox-ping'
     metrics_path: /probe
     params:
       module: [icmp]
     static_configs:
       - targets:
-          - 192.168.100.1    # Tu gateway (primer salto)
+          - 192.168.100.1    # Gateway
           - 200.91.75.5      # DNS ISP primario
           - 200.91.75.6      # DNS ISP secundario
-          - 8.8.8.8          # Google DNS
-          - 1.1.1.1          # Cloudflare
-          - 208.67.222.222   # OpenDNS
+          - 8.8.8.8
+          - 1.1.1.1
+          - 208.67.222.222
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
@@ -25,7 +24,6 @@ scrape_configs:
       - target_label: __address__
         replacement: blackbox-exporter:9115
 
-  # HTTP/S a sitios externos
   - job_name: 'blackbox-http'
     metrics_path: /probe
     params:
@@ -43,45 +41,16 @@ scrape_configs:
       - target_label: __address__
         replacement: blackbox-exporter:9115
 
-  # DNS del ISP vs DNS públicos — comparativa directa
-  - job_name: 'blackbox-dns-isp'
+  - job_name: 'blackbox-dns'
     metrics_path: /probe
     params:
-      module: [dns_isp_1]
+      module: [dns]
     static_configs:
       - targets:
-          - "200.91.75.5"
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: __param_target
-      - source_labels: [__param_target]
-        target_label: instance
-      - target_label: __address__
-        replacement: blackbox-exporter:9115
-
-  - job_name: 'blackbox-dns-isp-2'
-    metrics_path: /probe
-    params:
-      module: [dns_isp_2]
-    static_configs:
-      - targets:
-          - "200.91.75.6"
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: __param_target
-      - source_labels: [__param_target]
-        target_label: instance
-      - target_label: __address__
-        replacement: blackbox-exporter:9115
-
-  - job_name: 'blackbox-dns-public'
-    metrics_path: /probe
-    params:
-      module: [dns_google]
-    static_configs:
-      - targets:
-          - "8.8.8.8"
-          - "1.1.1.1"
+          - 200.91.75.5    # DNS ISP primario
+          - 200.91.75.6    # DNS ISP secundario
+          - 8.8.8.8
+          - 1.1.1.1
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
