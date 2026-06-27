@@ -9,6 +9,7 @@ services:
     restart: unless-stopped
     environment:
       # https://www.navidrome.org/docs/usage/configuration/options/#available-options
+      ND_BASEURL: /navidrome
       ND_DEFAULTLANGUAGE: es
       ND_ENABLEGRAVATAR: true
       ND_LASTFM_ENABLED: true
