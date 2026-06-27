@@ -10,6 +10,10 @@ services:
     environment:
       # https://www.navidrome.org/docs/usage/configuration/options/#available-options
       ND_DEFAULTLANGUAGE: es
+      ND_ENABLEGRAVATAR: true
+      ND_LASTFM_ENABLED: true
+      ND_LASTFM_APIKEY: ${ND_LASTFM_APIKEY}
+      ND_LASTFM_SECRET: ${ND_LASTFM_SECRET}
     volumes:
       - type: bind
         source: /home/leojimenezcr/navidrome/navidromedata
