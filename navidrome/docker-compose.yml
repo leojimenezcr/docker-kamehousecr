@@ -16,7 +16,8 @@ services:
         target: /data
       - type: bind
         source: /home/leojimenezcr/navidrome/music
-        target: /music:ro
+        target: /music
+        read_only: true
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 
