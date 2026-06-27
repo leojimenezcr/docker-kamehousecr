@@ -6,6 +6,8 @@ services:
     user: 1000:1000
     ports:
       - "4533:4533"
+    networks:
+      - navidrome-net
     restart: unless-stopped
     environment:
       # https://www.navidrome.org/docs/usage/configuration/options/#available-options
