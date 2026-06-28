@@ -19,10 +19,10 @@ services:
       ND_LASTFM_SECRET: ${ND_LASTFM_SECRET}
     volumes:
       - type: bind
-        source: /home/leojimenezcr/navidrome/navidromedata
+        source: ${BASE_DIR}/navidromedata
         target: /data
       - type: bind
-        source: /home/leojimenezcr/navidrome/music
+        source: ${MEDIA_DIR}/music
         target: /music
         read_only: true
     labels:
