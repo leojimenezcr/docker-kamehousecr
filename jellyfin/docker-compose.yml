@@ -12,11 +12,12 @@ services:
       - ../stack.env
     volumes:
       - ${BASE_DIR}/config/jellyfin:/config
-      - ${BASE_DIR}/tvshows:/data/tvshows
-      - ${BASE_DIR}/anime:/data/anime
-      - ${BASE_DIR}/movies:/data/movies
-      - ${BASE_DIR}/erotic:/data/erotic
-      - ${BASE_DIR}/musicvideos:/data/musicvideos
+      - ${MEDIA_DIR}/tvshows:/data/tvshows
+      - ${MEDIA_DIR}/anime:/data/anime
+      - ${MEDIA_DIR}/movies:/data/movies
+      - ${MEDIA_DIR}/erotic:/data/erotic
+      - ${MEDIA_DIR}/musicvideos:/data/musicvideos
+      - ${MEDIA_DIR}/music:/data/music
     networks:
       - jellyfin-net
     ports:
@@ -38,9 +39,9 @@ services:
       - ../stack.env
     volumes:
       - ${BASE_DIR}/config/sonarr:/config
-      - ${BASE_DIR}/tvshows:/tvshows
-      - ${BASE_DIR}/anime:/anime
-      - ${BASE_DIR}/transmission/downloads/complete:/downloads/complete
+      - ${MEDIA_DIR}/tvshows:/tvshows
+      - ${MEDIA_DIR}/anime:/anime
+      - ${MEDIA_DIR}/transmission/downloads/complete:/downloads/complete
     networks:
       - jellyfin-net
     ports:
@@ -60,9 +61,9 @@ services:
       - ../stack.env
     volumes:
       - ${BASE_DIR}/config/radarr:/config
-      - ${BASE_DIR}/movies:/movies
-      - ${BASE_DIR}/erotic:/erotic
-      - ${BASE_DIR}/transmission/downloads/complete:/downloads/complete
+      - ${MEDIA_DIR}/movies:/movies
+      - ${MEDIA_DIR}/erotic:/erotic
+      - ${MEDIA_DIR}/transmission/downloads/complete:/downloads/complete
     networks:
       - jellyfin-net
     ports:
@@ -82,11 +83,11 @@ services:
       - ../stack.env
     volumes:
       - ${BASE_DIR}/config/bazarr:/config
-      - ${BASE_DIR}/tvshows:/data/tvshows
-      - ${BASE_DIR}/anime:/data/anime
-      - ${BASE_DIR}/movies:/data/movies
-      - ${BASE_DIR}/erotic:/data/erotic
-      - ${BASE_DIR}/musicvideos:/data/musicvideos
+      - ${MEDIA_DIR}/tvshows:/data/tvshows
+      - ${MEDIA_DIR}/anime:/data/anime
+      - ${MEDIA_DIR}/movies:/data/movies
+      - ${MEDIA_DIR}/erotic:/data/erotic
+      - ${MEDIA_DIR}/musicvideos:/data/musicvideos
     networks:
       - jellyfin-net
     ports:
@@ -152,7 +153,7 @@ services:
       - ../stack.env
     volumes:
       - ${BASE_DIR}/config/transmission:/config
-      - ${BASE_DIR}/transmission/downloads:/downloads
+      - ${MEDIA_DIR}/transmission/downloads:/downloads
     networks:
       - jellyfin-net
     ports:
@@ -177,9 +178,9 @@ services:
       - ../stack.env
     volumes:
       - ${BASE_DIR}/config/tinymediamanager:/data
-      - ${BASE_DIR}/movies:/media/movies
-      - ${BASE_DIR}/erotic:/media/erotic
-      - ${BASE_DIR}/tvshows:/media/tv_shows
+      - ${MEDIA_DIR}/movies:/media/movies
+      - ${MEDIA_DIR}/erotic:/media/erotic
+      - ${MEDIA_DIR}/tvshows:/media/tv_shows
     networks:
       - jellyfin-net
     ports:
