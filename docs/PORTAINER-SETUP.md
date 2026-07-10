@@ -41,13 +41,39 @@ es el punto más fácil de romper silenciosamente en este repo.
 
 ## Redespliegue
 
-**Portainer Community Edition no soporta webhooks de auto-redespliegue
-para stacks** (esa función requiere Business Edition). Después de subir un
-cambio a este repo, hay que redesplegar cada stack manualmente desde la UI
-(Stacks → `<nombre>` → "Pull and redeploy" / volver a guardar el stack) —
-o revisar si ese stack tiene "Automatic updates" con polling por intervalo
-configurado (mecanismo distinto al webhook, verificar en tu versión de
-Portainer si está disponible y activo).
+**Portainer Community Edition sí soporta webhooks de redespliegue por
+stack** (GitOps updates). Lo que queda detrás de "Business Feature" en esa
+misma pantalla son dos opciones auxiliares — "Re-pull image" y "Force
+redeployment" —, no el webhook en sí.
+
+### Habilitar GitOps updates en un stack
+
+Portainer UI → Stacks → `<nombre>` → sección **"Redeploy from git
+repository"**:
+1. Activar el toggle **GitOps updates**.
+2. Elegir **Mechanism**: `Polling` o `Webhook`.
+   - **Polling**: Portainer chequea el repo por intervalo y redespliega
+     solo si detectó cambios — no requiere disparar nada manualmente.
+   - **Webhook**: Portainer da una URL única
+     (`.../api/stacks/webhooks/<uuid>`) — un `POST` a esa URL fuerza el
+     redespliegue inmediatamente. Copiarla con el botón "Copy link".
+3. Save settings.
+
+### Disparar el webhook desde este repo
+
+1. Copiar `scripts/webhooks.env.example` a `scripts/webhooks.env`
+   (gitignorado — nunca se commitea, tiene URLs con UUID que actúan como
+   token).
+2. Pegar ahí la URL real de cada stack que tenga el webhook habilitado.
+3. Después de pushear un cambio:
+   ```bash
+   scripts/trigger-portainer-redeploy.sh <nombre-stack>
+   ```
+   (o `curl -X POST <url>` directo, sin el script).
+
+Si un stack no tiene GitOps updates habilitado, redesplegar manualmente
+desde la UI (Stacks → `<nombre>` → "Pull and redeploy" / volver a guardar
+el stack).
 
 ## Tabla de stacks
 
