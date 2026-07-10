@@ -9,9 +9,9 @@ services:
       - PGID=33 #www-data
       - TZ=America/Costa_Rica
     volumes:
-      - /home/leojimenezcr/duplicati:/config
-      - /home/leojimenezcr/respaldos:/backups
-      - /home/leojimenezcr:/source
+      - ${DUPLICATI_CONFIG_DIR}:/config
+      - ${DUPLICATI_BACKUPS_DIR}:/backups
+      - ${DUPLICATI_SOURCE_DIR}:/source
     networks:
         - duplicati-net
     ports:

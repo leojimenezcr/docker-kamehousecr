@@ -24,7 +24,7 @@ services:
       - "443:443"
     volumes:
       - type: bind
-        source: /home/leojimenezcr/proxy
+        source: ${PROXY_CONFIG_DIR}
         target: /config
     networks:
       # La comunicacion con los contenedores es por

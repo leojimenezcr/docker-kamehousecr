@@ -14,7 +14,7 @@ services:
       - 11434:11434
     volumes:
       - type: bind
-        source: /home/leojimenezcr/ollama/ollama
+        source: ${OLLAMA_DATA_DIR}
         target: /root/.ollama
     # GPU support (turn off by commenting with # if you don't have an nvidia gpu)
     #deploy:
@@ -33,7 +33,7 @@ services:
     pull_policy: missing
     volumes:
       - type: bind
-        source: /home/leojimenezcr/ollama/ollama-webui
+        source: ${OLLAMA_WEBUI_DATA_DIR}
         target: /app/backend/data
     depends_on:
       - ollama
