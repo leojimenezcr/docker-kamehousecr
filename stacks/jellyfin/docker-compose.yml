@@ -9,7 +9,7 @@ services:
       - PGID=1000
       - TZ=America/Costa_Rica
     env_file:
-      - ../stack.env
+      - ../../stack.env
     volumes:
       - ${BASE_DIR}/config/jellyfin:/config
       - ${MEDIA_DIR}/tvshows:/data/tvshows
@@ -36,7 +36,7 @@ services:
       - PGID=1000
       - TZ=America/Costa_Rica
     env_file:
-      - ../stack.env
+      - ../../stack.env
     volumes:
       - ${BASE_DIR}/config/sonarr:/config
       - ${MEDIA_DIR}/tvshows:/tvshows
@@ -58,7 +58,7 @@ services:
       - PGID=1000
       - TZ=America/Costa_Rica
     env_file:
-      - ../stack.env
+      - ../../stack.env
     volumes:
       - ${BASE_DIR}/config/radarr:/config
       - ${MEDIA_DIR}/movies:/movies
@@ -80,7 +80,7 @@ services:
       - PGID=1000
       - TZ=America/Costa_Rica
     env_file:
-      - ../stack.env
+      - ../../stack.env
     volumes:
       - ${BASE_DIR}/config/bazarr:/config
       - ${MEDIA_DIR}/tvshows:/data/tvshows
@@ -105,7 +105,7 @@ services:
       - LOG_LEVEL=debug
       - TZ=America/Costa_Rica
     env_file:
-      - ../stack.env
+      - ../../stack.env
     volumes:
       - ${BASE_DIR}/config/jellyseerr:/app/config
     networks:
@@ -128,7 +128,7 @@ services:
       - TZ=America/Costa_Rica
       - AUTO_UPDATE=true #optional
     env_file:
-      - ../stack.env
+      - ../../stack.env
     volumes:
       - ${BASE_DIR}/config/jackett:/config
       - ${BASE_DIR}/jackett/downloads:/downloads
@@ -150,7 +150,7 @@ services:
       - USER=${TRANSMISSION_USER}
       - PASS=${TRANSMISSION_PASS}
     env_file:
-      - ../stack.env
+      - ../../stack.env
     volumes:
       - ${BASE_DIR}/config/transmission:/config
       - ${MEDIA_DIR}/transmission/downloads:/downloads
@@ -175,7 +175,7 @@ services:
       - LANG=en_US.UTF-8   # force UTF8
       - PASSWORD=${TINYMEDIAMANAGER_PASSWORD}
     env_file:
-      - ../stack.env
+      - ../../stack.env
     volumes:
       - ${BASE_DIR}/config/tinymediamanager:/data
       - ${MEDIA_DIR}/movies:/media/movies

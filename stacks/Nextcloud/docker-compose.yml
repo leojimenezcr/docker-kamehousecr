@@ -10,7 +10,7 @@ services:
         source: /home/leojimenezcr/nextcloud/nextclouddata
         target: /var/www/html
     env_file:
-      - ../stack.env
+      - ../../stack.env
     environment:
       MYSQL_HOST: "${MYSQL_HOST}"
       MYSQL_USER: "${MYSQL_USER}"
@@ -36,7 +36,7 @@ services:
         source: /home/leojimenezcr/nextcloud/nextclouddb
         target: /var/lib/mysql
     env_file:
-      - ../stack.env
+      - ../../stack.env
     environment:
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
       MYSQL_USER: "${MYSQL_USER}"
