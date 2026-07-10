@@ -36,6 +36,6 @@ reorganización. Ver también `.env.example` en esta carpeta.
 ## ⚠ Conflicto conocido (no resuelto aquí)
 El servicio `transmission` embebido en este stack (`container_name:
 transmission`, puertos 9091/51413 activos, PGID=1000) duplica funcionalmente
-al stack standalone `stacks/Transmission` (mismo `container_name`,
+al stack standalone `stacks/transmission` (mismo `container_name`,
 PGID=1001, puertos deshabilitados). No pueden correr simultáneamente sin
 colisión de nombre. Ver `../../docs/ARCHITECTURE.md`.

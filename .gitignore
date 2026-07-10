@@ -1,4 +1,4 @@
-# Archivos de variables de entorno reales (nunca commitear valores reales)
+# Archivos de variables de entorno reales (nunca versionar valores reales)
 .env
 **/.env
 /stack.env

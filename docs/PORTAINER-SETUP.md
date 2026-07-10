@@ -1,9 +1,9 @@
 # Configuración de stacks en Portainer (GitOps)
 
 > **CRÍTICO — leer antes de aplicar el merge de `reorg/estructura-stacks`:**
-> Los stacks `immich-app`, `jellyfin` y `Nextcloud` usan
+> Los stacks `immich-app`, `jellyfin` y `nextcloud` usan
 > `env_file: ../../stack.env`. Ese `stack.env` **no es un archivo que haya
-> que crear a mano ni commitear**: Portainer lo genera automáticamente cada
+> que crear a mano ni versionar en git**: Portainer lo genera automáticamente cada
 > vez que se guardan variables en la sección "Environment variables" de la
 > UI de un stack con repositorio Git, escribiéndolas en un archivo
 > `stack.env` en la raíz del clon local de **ese stack en particular**.
@@ -21,7 +21,7 @@
 > siempre (la raíz del clon de ese stack); lo único que cambió es cuántos
 > `../` hacen falta para llegar ahí desde el compose.
 >
-> **Después de repuntar el "Compose path" de cada uno de esos 3 stacks en
+> **Después de actualizar el "Compose path" de cada uno de esos 3 stacks en
 > Portainer, verificar explícitamente** que las apps siguen levantando con
 > sus credenciales (login a Nextcloud/Immich, biblioteca de Jellyfin
 > visible) antes de dar por cerrada la migración de cada stack. Si algo no
@@ -34,10 +34,10 @@ Para cada stack: Portainer UI → Stacks → `<nombre>` → Editor → cambiar
 variables de entorno nuevas si corresponde → Update the stack. Las
 "Environment variables" ya existentes en Portainer no se pierden al cambiar
 el Compose path, pero hay que **agregar** las variables nuevas listadas
-abajo antes del redeploy si todavía no existían.
+abajo antes del redespliegue si todavía no existían.
 
-**Portainer Community Edition no soporta webhooks de auto-redeploy para
-stacks** (esa función requiere Business Edition). Después de pushear un
+**Portainer Community Edition no soporta webhooks de auto-redespliegue para
+stacks** (esa función requiere Business Edition). Después de subir un
 cambio a este repo, hay que redesplegar cada stack manualmente desde la UI
 (Stacks → `<nombre>` → "Pull and redeploy" / volver a guardar el stack) —
 o revisar si ese stack tiene "Automatic updates" con polling por intervalo
@@ -55,24 +55,24 @@ Portainer si está disponible y activo).
 | isp-monitor | `isp-monitor/docker-compose.yml` | `stacks/isp-monitor/docker-compose.yml` | Sin variables nuevas — verificar `BASE_DIR`, `GF_SECURITY_ADMIN_USER`, `GF_SECURITY_ADMIN_PASSWORD` |
 | jellyfin | `jellyfin/docker-compose.yml` | `stacks/jellyfin/docker-compose.yml` | Sin variables nuevas — verificar `BASE_DIR`, `MEDIA_DIR`, `TRANSMISSION_USER`, `TRANSMISSION_PASS`, `TINYMEDIAMANAGER_PASSWORD`. **Ver aviso de `env_file` arriba.** |
 | navidrome | `navidrome/docker-compose.yml` | `stacks/navidrome/docker-compose.yml` | Sin variables nuevas — verificar `BASE_DIR`, `MEDIA_DIR`, `ND_LASTFM_APIKEY`, `ND_LASTFM_SECRET` |
-| Nextcloud | `Nextcloud/docker-compose.yml` | `stacks/Nextcloud/docker-compose.yml` | `BASE_DIR` = `/home/leojimenezcr/nextcloud` (contiene `nextclouddata/` y `nextclouddb/`); verificar `MYSQL_HOST`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_ROOT_PASSWORD`. **Ver aviso de `env_file` arriba.** |
+| nextcloud | `Nextcloud/docker-compose.yml` | `stacks/nextcloud/docker-compose.yml` | `BASE_DIR` = `/home/leojimenezcr/nextcloud` (contiene `nextclouddata/` y `nextclouddb/`); verificar `MYSQL_HOST`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_ROOT_PASSWORD`. **Ver aviso de `env_file` arriba.** |
 | ollama | `ollama/docker-compose.yml` | `stacks/ollama/docker-compose.yml` | `BASE_DIR` = `/home/leojimenezcr/ollama` (contiene `ollama/` y `ollama-webui/`) |
 | piper | `piper/docker-compose.yml` | `stacks/piper/docker-compose.yml` | `BASE_DIR` = `/home/leojimenezcr/piper` (contiene `models/`) |
-| Portainer | `Portainer/docker-compose.yml` | `stacks/Portainer/docker-compose.yml` | (ninguna) |
-| Proxy | `Proxy/docker-compose.yml` | `proxy/docker-compose.yml` | `BASE_DIR` = `/home/leojimenezcr/proxy` (se monta completa, sin subcarpeta); verificar `URL`, `EMAIL`, `EXTRA_DOMAINS` |
+| portainer | `Portainer/docker-compose.yml` | `stacks/portainer/docker-compose.yml` | (ninguna) |
+| proxy | `Proxy/docker-compose.yml` | `proxy/docker-compose.yml` | `BASE_DIR` = `/home/leojimenezcr/proxy` (se monta completa, sin subcarpeta); verificar `URL`, `EMAIL`, `EXTRA_DOMAINS` |
 | rasa-faq-demo | `rasa-faq-demo/docker-compose.yml` | `stacks/rasa-faq-demo/docker-compose.yml` | `BASE_DIR` = `/home/leojimenezcr/rasa-faq-demo` (se monta completa en `rasa`; `index.html` dentro se monta aparte en `webchat`) |
-| Transmission | `Transmission/docker-compose.yml` | `stacks/Transmission/docker-compose.yml` | `BASE_DIR` = `/home/leojimenezcr/transmission` (contiene `config/`, `downloads/`, `watch/`); verificar `USER`, `PASS` |
+| transmission | `Transmission/docker-compose.yml` | `stacks/transmission/docker-compose.yml` | `BASE_DIR` = `/home/leojimenezcr/transmission` (contiene `config/`, `downloads/`, `watch/`); verificar `USER`, `PASS` |
 | watchtower | `watchtower/docker-compose.yml` | `stacks/watchtower/docker-compose.yml` | (ninguna) |
 
-## Orden sugerido de repunte en Portainer
+## Orden sugerido de actualización de rutas en Portainer
 
 1. Stacks sin `env_file` y sin variables nuevas (coqui, isp-monitor,
-   navidrome, Portainer, watchtower) — riesgo mínimo, sirven de prueba del
+   navidrome, portainer, watchtower) — riesgo mínimo, sirven de prueba del
    patrón.
 2. Stacks con variables nuevas pero sin `env_file` (applio, duplicati,
-   ollama, piper, Proxy, rasa-faq-demo, Transmission) — agregar las
+   ollama, piper, proxy, rasa-faq-demo, transmission) — agregar las
    variables nuevas en la UI antes de aplicar el nuevo Compose path.
-3. Stacks con `env_file` (immich-app, jellyfin, Nextcloud) — mayor riesgo,
+3. Stacks con `env_file` (immich-app, jellyfin, nextcloud) — mayor riesgo,
    hacerlos al final y verificar login/funcionalidad inmediatamente después
    de cada uno.
 

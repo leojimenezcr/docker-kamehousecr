@@ -1,4 +1,4 @@
-# Nextcloud
+# nextcloud
 
 ## Qué hace
 Nube personal (Nextcloud + MariaDB + Redis).
@@ -6,7 +6,7 @@ Nube personal (Nextcloud + MariaDB + Redis).
 ## Puertos
 | Servicio (contenedor) | Puerto host | Puerto contenedor |
 |---|---|---|
-| nextcloud | — | — (sin puerto de host, expuesto vía Proxy) |
+| nextcloud | — | — (sin puerto de host, expuesto vía `proxy`) |
 | nextclouddb (mariadb) | — | — |
 | nextcloudredis | — | — |
 
@@ -24,7 +24,7 @@ stack). Depende del stack `proxy` para exponerse hacia afuera (la red que
 conecta ambos se agrega manualmente vía Portainer UI, no está versionada).
 
 ## Nombre del stack en Portainer
-`Nextcloud` (asumido = nombre de carpeta, verificar contra la UI real).
+`nextcloud` (asumido = nombre de carpeta, verificar contra la UI real).
 
 ## Variables de entorno
 Este stack usa `env_file: ../../stack.env` — ver aviso crítico en

@@ -1,4 +1,4 @@
-# Transmission
+# transmission
 
 ## Qué hace
 Cliente BitTorrent standalone (Transmission).
@@ -21,7 +21,7 @@ Cliente BitTorrent standalone (Transmission).
 Ninguno.
 
 ## Nombre del stack en Portainer
-`Transmission` (asumido = nombre de carpeta, verificar contra la UI real).
+`transmission` (asumido = nombre de carpeta, verificar contra la UI real).
 
 ## Variables de entorno
 Ver `.env.example` en esta misma carpeta y la tabla correspondiente en

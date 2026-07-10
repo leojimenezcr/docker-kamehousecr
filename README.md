@@ -5,7 +5,7 @@ Configuración de contenedores Docker del homelab de Leo. Cada carpeta bajo
 `docker-compose.yml` autocontenido que representa un "stack" desplegado por
 **Portainer vía GitOps**: Portainer apunta a un branch de este repo + un
 "Compose path" relativo, y las variables de entorno de cada stack se cargan
-normalmente en la UI de Portainer (no vía `.env` commiteado — ver
+normalmente en la UI de Portainer (no vía `.env` versionado en git — ver
 [`docs/PORTAINER-SETUP.md`](docs/PORTAINER-SETUP.md)).
 
 ## Estructura
@@ -35,19 +35,19 @@ Ver la tabla completa en [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 | `stacks/isp-monitor` | Monitoreo de conectividad ISP (Prometheus + Grafana) |
 | `stacks/jellyfin` | Media server + arr-stack |
 | `stacks/navidrome` | Streaming de música |
-| `stacks/Nextcloud` | Nube personal |
+| `stacks/nextcloud` | Nube personal |
 | `stacks/ollama` | LLM local + WebUI |
 | `stacks/piper` | TTS liviano |
-| `stacks/Portainer` | Gestor de contenedores |
+| `stacks/portainer` | Gestor de contenedores |
 | `stacks/rasa-faq-demo` | Demo de chatbot FAQ |
-| `stacks/Transmission` | Cliente BitTorrent |
+| `stacks/transmission` | Cliente BitTorrent |
 | `stacks/watchtower` | Auto-actualización de contenedores |
 | `proxy` | Reverse proxy + HTTPS (SWAG) |
 
 ## Cómo desplegar/actualizar un stack
 
 1. Editar el `docker-compose.yml` correspondiente en este repo.
-2. Commitear y pushear al branch que Portainer está siguiendo.
+2. Confirmar los cambios (commit) y subirlos al branch que Portainer está siguiendo.
 3. Redesplegar el stack manualmente desde la UI de Portainer (Stacks →
    `<nombre>` → "Pull and redeploy"). Portainer Community Edition no
    soporta webhooks de auto-redeploy para stacks — ver
@@ -57,5 +57,5 @@ Ver la tabla completa en [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — mapa de servicios,
   puertos, dependencias entre stacks, conflictos conocidos.
-- [`docs/PORTAINER-SETUP.md`](docs/PORTAINER-SETUP.md) — cómo repuntar cada
+- [`docs/PORTAINER-SETUP.md`](docs/PORTAINER-SETUP.md) — cómo actualizar la ruta de cada
   stack en Portainer tras esta reorganización, variables a cargar en la UI.

@@ -19,13 +19,13 @@ internet a través de este proxy.
 
 ## Redes
 Único servicio del repo con `networks.external: true`, hacia
-`portainer_portainer-net` (red creada por el stack `stacks/Portainer`). Las
-redes de los demás stacks (Nextcloud, jellyfin, etc.) se agregan
+`portainer_portainer-net` (red creada por el stack `stacks/portainer`). Las
+redes de los demás stacks (nextcloud, jellyfin, etc.) se agregan
 manualmente a este contenedor vía la UI de Portainer — no están
 versionadas en ningún `docker-compose.yml` de este repo.
 
 ## Depende de
-`stacks/Portainer` (consume su red externa `portainer_portainer-net`).
+`stacks/portainer` (consume su red externa `portainer_portainer-net`).
 
 ## Nombre del stack en Portainer
 `Proxy` (asumido = nombre de carpeta original antes de esta reorganización,
@@ -35,7 +35,7 @@ verificar contra la UI real).
 Ver `.env.example` en esta misma carpeta y la tabla correspondiente en
 `../docs/PORTAINER-SETUP.md`.
 
-## Sobre `nginx.conf` y `conf.d/` (placeholders, no wireados todavía)
+## Sobre `nginx.conf` y `conf.d/` (placeholders, no conectados todavía)
 `nginx.conf` y `conf.d/` en esta carpeta son **placeholders documentados**,
 no contienen configuración real. La configuración real de SWAG (certificados,
 site-confs, etc.) vive hoy en el bind mount del host (`BASE_DIR`,

@@ -4,7 +4,7 @@ Cada carpeta bajo `stacks/` (y `proxy/` como excepción, top-level) es un
 `docker-compose.yml` desplegado por Portainer vía GitOps: Portainer apunta a
 un branch de este repo + un "Compose path" relativo. Las variables de
 entorno de cada stack se cargan normalmente en la UI de Portainer, no vía
-`.env` commiteado. Los `.env.example` de cada stack son documentación de
+`.env` versionado en git. Los `.env.example` de cada stack son documentación de
 referencia — no los lee Portainer automáticamente.
 
 ## Mapa de servicios
@@ -25,20 +25,20 @@ referencia — no los lee Portainer automáticamente.
 | jellyfin / bazarr | 6767:6767 | PENDIENTE | sonarr, radarr | — |
 | jellyfin / jellyseerr | 5055:5055 | PENDIENTE | radarr, sonarr | — |
 | jellyfin / jackett | 9117:9117 | PENDIENTE | — | — |
-| jellyfin / transmission (embebido) | 9091:9091, 51413:51413(+udp) | PENDIENTE | — | ⚠ CONFLICTO: duplica el stack standalone `Transmission` |
+| jellyfin / transmission (embebido) | 9091:9091, 51413:51413(+udp) | PENDIENTE | — | ⚠ CONFLICTO: duplica el stack standalone `transmission` |
 | jellyfin / tinymediamanager | 4000:4000 | PENDIENTE | — | — |
 | navidrome | 4533:4533 | PENDIENTE | — | — |
-| Nextcloud / nextcloud | sin puerto host | PENDIENTE | nextclouddb, nextcloudredis | Expuesto vía `proxy` (red no versionada) |
-| Nextcloud / nextclouddb (mariadb) | sin puerto host | — | — | — |
-| Nextcloud / nextcloudredis | sin puerto host | — | — | — |
+| nextcloud | sin puerto host | PENDIENTE | nextclouddb, nextcloudredis | Expuesto vía `proxy` (red no versionada) |
+| nextcloud / nextclouddb (mariadb) | sin puerto host | — | — | — |
+| nextcloud / nextcloudredis | sin puerto host | — | — | — |
 | ollama | 11434:11434 | PENDIENTE | — | — |
 | ollama / open-webui | 8080:8080 | PENDIENTE | ollama | ⚠ CONFLICTO: mismo puerto host que `rasa-faq-demo / webchat` |
 | piper | 10200:10200 | PENDIENTE | — | Red `piper-net` declarada, no usada |
-| Portainer | 8000:8000, 9443:9443 | PENDIENTE | — | Dueño de la red externa `portainer_portainer-net` que consume `proxy` |
-| proxy (swag) | 80:80, 443:443 | PENDIENTE | Portainer (consume su red externa) | Único servicio con `networks.external: true`; redes de otros stacks se agregan manualmente vía Portainer UI (no versionado) |
+| portainer | 8000:8000, 9443:9443 | PENDIENTE | — | Dueño de la red externa `portainer_portainer-net` que consume `proxy` |
+| proxy (swag) | 80:80, 443:443 | PENDIENTE | portainer (consume su red externa) | Único servicio con `networks.external: true`; redes de otros stacks se agregan manualmente vía Portainer UI (no versionado) |
 | rasa-faq-demo / rasa | sin puerto host (5005 comentado) | — | — | — |
 | rasa-faq-demo / webchat | 8080:80 | PENDIENTE | rasa | ⚠ CONFLICTO: mismo puerto host que `ollama / open-webui` |
-| Transmission (standalone) | sin puertos activos (comentados) | — | — | ⚠ CONFLICTO: duplica el `transmission` embebido en `jellyfin` (mismo `container_name`) |
+| transmission (standalone) | sin puertos activos (comentados) | — | — | ⚠ CONFLICTO: duplica el `transmission` embebido en `jellyfin` (mismo `container_name`) |
 | watchtower | sin puertos | — | — | Monitorea todos los contenedores con label `com.centurylinklabs.watchtower.enable=true` |
 
 ## Dominios / subdominios
@@ -51,7 +51,7 @@ columna a mano una vez migrada esa configuración al repo.
 
 ## Redes Docker relevantes
 
-- `portainer_portainer-net`: red externa creada por el stack `Portainer`,
+- `portainer_portainer-net`: red externa creada por el stack `portainer`,
   consumida explícitamente solo por `proxy`. Las demás redes que `proxy`
   necesita para llegar a cada app se agregan manualmente en la UI de
   Portainer — no están versionadas en ningún compose de este repo.
@@ -63,7 +63,7 @@ columna a mano una vez migrada esa configuración al repo.
 Confirmado explícitamente con el usuario que estos dos puntos quedan fuera
 de alcance — solo se documentan:
 
-1. **Duplicación de Transmission**: el stack standalone `stacks/Transmission`
+1. **Duplicación de transmission**: el stack standalone `stacks/transmission`
    (`container_name: transmission`, PGID=1001, puertos deshabilitados)
    coexiste con el servicio `transmission` embebido en `stacks/jellyfin`
    (`container_name: transmission`, PGID=1000, puertos 9091/51413 activos).
@@ -76,13 +76,13 @@ de alcance — solo se documentan:
 3. **`duplicati` monta el `$HOME` completo** del usuario como `/source` —
    superficie de respaldo amplia. Se preserva la funcionalidad actual tal
    cual, solo se documenta.
-4. **Nombres de variable genéricos `USER`/`PASS`** en `Transmission` —
+4. **Nombres de variable genéricos `USER`/`PASS`** en `transmission` —
    riesgo de colisión con variables de entorno del shell/sistema. No se
    renombran (fuera de alcance funcional).
 
 ## Sobre `stack.env`
 
-`immich-app`, `jellyfin` y `Nextcloud` usan `env_file` apuntando a un
+`immich-app`, `jellyfin` y `nextcloud` usan `env_file` apuntando a un
 `stack.env` que Portainer genera en la raíz del clon del repositorio (nunca
-commiteado). Ver `docs/PORTAINER-SETUP.md` para el detalle de la corrección
+versionado en git). Ver `docs/PORTAINER-SETUP.md` para el detalle de la corrección
 de ruta relativa que requirió esta reorganización.
