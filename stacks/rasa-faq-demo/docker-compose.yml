@@ -3,7 +3,7 @@ services:
     image: rasa/rasa:3.5.2
     container_name: rasa-faq-demo
     volumes:
-      - ${RASA_FAQ_APP_DIR}:/app
+      - ${BASE_DIR}:/app
     command: run -m models --enable-api --cors "*" --debug
     #ports:
     #  - 5005:5005
@@ -15,7 +15,7 @@ services:
     image: nginx:alpine
     container_name: rasa-webchat-demo
     volumes:
-      - ${RASA_FAQ_WEBCHAT_INDEX_FILE}:/usr/share/nginx/html/index.html
+      - ${BASE_DIR}/index.html:/usr/share/nginx/html/index.html
     ports:
       - 8080:80
     networks:

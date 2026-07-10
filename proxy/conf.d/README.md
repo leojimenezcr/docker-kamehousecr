@@ -5,7 +5,7 @@ Acá van los server blocks de nginx, uno por dominio/servicio (ej.
 migre la configuración real de SWAG a este repo.
 
 Hoy esta carpeta está **vacía** (solo este README) porque la configuración
-real vive únicamente en el bind mount del host (`PROXY_CONFIG_DIR`,
+real vive únicamente en el bind mount del host (`BASE_DIR`,
 actualmente `/home/leojimenezcr/proxy`), fuera de git. No se inventaron
 server blocks acá — ver `../README.md` para el detalle completo de por qué
 y cómo migrar esa configuración.

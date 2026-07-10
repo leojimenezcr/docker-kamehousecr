@@ -5,9 +5,9 @@ services:
     image: ghcr.io/linuxserver/transmission
     container_name: transmission
     volumes:
-      - ${TRANSMISSION_CONFIG_DIR}:/config
-      - ${TRANSMISSION_DOWNLOADS_DIR}:/downloads
-      - ${TRANSMISSION_WATCH_DIR}:/watch
+      - ${BASE_DIR}/config:/config
+      - ${BASE_DIR}/downloads:/downloads
+      - ${BASE_DIR}/watch:/watch
     environment:
       - PUID=1000
       - PGID=1001

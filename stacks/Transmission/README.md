@@ -9,11 +9,13 @@ Cliente BitTorrent standalone (Transmission).
 | transmission | — (9091, 51413(+udp) comentados/deshabilitados) | 9091, 51413(+udp) |
 
 ## Volúmenes
-| Variable | Monta en | Descripción |
+`BASE_DIR` es la carpeta raíz de este stack en el host.
+
+| Ruta | Monta en | Descripción |
 |---|---|---|
-| `TRANSMISSION_CONFIG_DIR` | `/config` | Configuración |
-| `TRANSMISSION_DOWNLOADS_DIR` | `/downloads` | Descargas completas |
-| `TRANSMISSION_WATCH_DIR` | `/watch` | Carpeta vigilada para agregar torrents |
+| `${BASE_DIR}/config` | `/config` | Configuración |
+| `${BASE_DIR}/downloads` | `/downloads` | Descargas completas |
+| `${BASE_DIR}/watch` | `/watch` | Carpeta vigilada para agregar torrents |
 
 ## Depende de
 Ninguno.

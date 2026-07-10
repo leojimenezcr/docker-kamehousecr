@@ -11,10 +11,12 @@ se construyó, pero no está referenciado por `build:` en el compose.
 | applio | 6969 | 6969 |
 
 ## Volúmenes
-| Variable | Monta en | Descripción |
+`BASE_DIR` es la carpeta raíz de este stack en el host.
+
+| Ruta | Monta en | Descripción |
 |---|---|---|
-| `APPLIO_MODELS_DIR` | `/app/models` | Modelos de voz |
-| `APPLIO_OUTPUTS_DIR` | `/app/outputs` | Salidas generadas |
+| `${BASE_DIR}/models` | `/app/models` | Modelos de voz |
+| `${BASE_DIR}/outputs` | `/app/outputs` | Salidas generadas |
 
 ## Depende de
 Ninguno.

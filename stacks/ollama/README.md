@@ -10,10 +10,12 @@ LLM local (Ollama) + interfaz web (Open WebUI).
 | open-webui | 8080 | 8080 |
 
 ## Volúmenes
-| Variable | Monta en | Descripción |
+`BASE_DIR` es la carpeta raíz de este stack en el host.
+
+| Ruta | Monta en | Descripción |
 |---|---|---|
-| `OLLAMA_DATA_DIR` | `/root/.ollama` | Modelos descargados |
-| `OLLAMA_WEBUI_DATA_DIR` | `/app/backend/data` | Datos de Open WebUI |
+| `${BASE_DIR}/ollama` | `/root/.ollama` | Modelos descargados |
+| `${BASE_DIR}/ollama-webui` | `/app/backend/data` | Datos de Open WebUI |
 
 ## Depende de
 `open-webui` depende de `ollama` (mismo stack).

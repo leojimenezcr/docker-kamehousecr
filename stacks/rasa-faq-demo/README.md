@@ -11,10 +11,12 @@ servido con `nginx:alpine`).
 | webchat | 8080 | 80 |
 
 ## Volúmenes
-| Variable | Monta en | Descripción |
+`BASE_DIR` es la carpeta raíz de este stack en el host.
+
+| Ruta | Monta en | Descripción |
 |---|---|---|
-| `RASA_FAQ_APP_DIR` | `/app` (rasa) | Modelos y config de Rasa |
-| `RASA_FAQ_WEBCHAT_INDEX_FILE` | `/usr/share/nginx/html/index.html` (webchat) | HTML estático del widget |
+| `${BASE_DIR}` | `/app` (rasa) | Modelos y config de Rasa (carpeta completa) |
+| `${BASE_DIR}/index.html` | `/usr/share/nginx/html/index.html` (webchat) | HTML estático del widget |
 
 ## Depende de
 `webchat` depende de `rasa` (mismo stack).

@@ -9,9 +9,11 @@ TTS liviano (Rhasspy Piper, voz `es_MX-claude-high`).
 | piper | 10200 | 10200 |
 
 ## Volúmenes
-| Variable | Monta en | Descripción |
+`BASE_DIR` es la carpeta raíz de este stack en el host.
+
+| Ruta | Monta en | Descripción |
 |---|---|---|
-| `PIPER_MODELS_DIR` | `/models` | Modelos de voz |
+| `${BASE_DIR}/models` | `/models` | Modelos de voz |
 
 ## Depende de
 Ninguno.

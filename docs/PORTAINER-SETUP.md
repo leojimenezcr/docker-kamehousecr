@@ -48,20 +48,20 @@ Portainer si está disponible y activo).
 
 | Stack en Portainer (asumido = nombre de carpeta, VERIFICAR contra la UI) | Compose path VIEJO | Compose path NUEVO | Variables a cargar/agregar en la UI (valor actual a preservar, cuando se conoce) |
 |---|---|---|---|
-| applio | `applio/docker-compose.yml` | `stacks/applio/docker-compose.yml` | `APPLIO_MODELS_DIR` = `/home/leojimenezcr/applio/models`; `APPLIO_OUTPUTS_DIR` = `/home/leojimenezcr/applio/outputs` |
+| applio | `applio/docker-compose.yml` | `stacks/applio/docker-compose.yml` | `BASE_DIR` = `/home/leojimenezcr/applio` |
 | coqui | `coqui/docker-compose.yml` | `stacks/coqui/docker-compose.yml` | (ninguna) |
 | duplicati | `duplicati/docker-compose.yml` | `stacks/duplicati/docker-compose.yml` | `DUPLICATI_CONFIG_DIR` = `/home/leojimenezcr/duplicati`; `DUPLICATI_BACKUPS_DIR` = `/home/leojimenezcr/respaldos`; `DUPLICATI_SOURCE_DIR` = `/home/leojimenezcr` (⚠ home completo) |
 | immich-app | `immich-app/docker-compose.yml` | `stacks/immich-app/docker-compose.yml` | Sin variables nuevas — verificar que `IMMICH_VERSION`, `UPLOAD_LOCATION`, `BASE_DIR`, `DB_USERNAME`, `DB_PASSWORD`, `DB_DATABASE_NAME` ya cargadas sigan intactas. **Ver aviso de `env_file` arriba.** |
 | isp-monitor | `isp-monitor/docker-compose.yml` | `stacks/isp-monitor/docker-compose.yml` | Sin variables nuevas — verificar `BASE_DIR`, `GF_SECURITY_ADMIN_USER`, `GF_SECURITY_ADMIN_PASSWORD` |
 | jellyfin | `jellyfin/docker-compose.yml` | `stacks/jellyfin/docker-compose.yml` | Sin variables nuevas — verificar `BASE_DIR`, `MEDIA_DIR`, `TRANSMISSION_USER`, `TRANSMISSION_PASS`, `TINYMEDIAMANAGER_PASSWORD`. **Ver aviso de `env_file` arriba.** |
 | navidrome | `navidrome/docker-compose.yml` | `stacks/navidrome/docker-compose.yml` | Sin variables nuevas — verificar `BASE_DIR`, `MEDIA_DIR`, `ND_LASTFM_APIKEY`, `ND_LASTFM_SECRET` |
-| Nextcloud | `Nextcloud/docker-compose.yml` | `stacks/Nextcloud/docker-compose.yml` | `NEXTCLOUD_DATA_DIR` = `/home/leojimenezcr/nextcloud/nextclouddata`; `NEXTCLOUD_DB_DIR` = `/home/leojimenezcr/nextcloud/nextclouddb`; verificar `MYSQL_HOST`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_ROOT_PASSWORD`. **Ver aviso de `env_file` arriba.** |
-| ollama | `ollama/docker-compose.yml` | `stacks/ollama/docker-compose.yml` | `OLLAMA_DATA_DIR` = `/home/leojimenezcr/ollama/ollama`; `OLLAMA_WEBUI_DATA_DIR` = `/home/leojimenezcr/ollama/ollama-webui` |
-| piper | `piper/docker-compose.yml` | `stacks/piper/docker-compose.yml` | `PIPER_MODELS_DIR` = `/home/leojimenezcr/piper/models` |
+| Nextcloud | `Nextcloud/docker-compose.yml` | `stacks/Nextcloud/docker-compose.yml` | `BASE_DIR` = `/home/leojimenezcr/nextcloud` (contiene `nextclouddata/` y `nextclouddb/`); verificar `MYSQL_HOST`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_ROOT_PASSWORD`. **Ver aviso de `env_file` arriba.** |
+| ollama | `ollama/docker-compose.yml` | `stacks/ollama/docker-compose.yml` | `BASE_DIR` = `/home/leojimenezcr/ollama` (contiene `ollama/` y `ollama-webui/`) |
+| piper | `piper/docker-compose.yml` | `stacks/piper/docker-compose.yml` | `BASE_DIR` = `/home/leojimenezcr/piper` (contiene `models/`) |
 | Portainer | `Portainer/docker-compose.yml` | `stacks/Portainer/docker-compose.yml` | (ninguna) |
-| Proxy | `Proxy/docker-compose.yml` | `proxy/docker-compose.yml` | `PROXY_CONFIG_DIR` = `/home/leojimenezcr/proxy`; verificar `URL`, `EMAIL`, `EXTRA_DOMAINS` |
-| rasa-faq-demo | `rasa-faq-demo/docker-compose.yml` | `stacks/rasa-faq-demo/docker-compose.yml` | `RASA_FAQ_APP_DIR` = `/home/leojimenezcr/rasa-faq-demo`; `RASA_FAQ_WEBCHAT_INDEX_FILE` = `/home/leojimenezcr/rasa-faq-demo/index.html` |
-| Transmission | `Transmission/docker-compose.yml` | `stacks/Transmission/docker-compose.yml` | `TRANSMISSION_CONFIG_DIR` = `/home/leojimenezcr/transmission/config`; `TRANSMISSION_DOWNLOADS_DIR` = `/home/leojimenezcr/transmission/downloads`; `TRANSMISSION_WATCH_DIR` = `/home/leojimenezcr/transmission/watch`; verificar `USER`, `PASS` |
+| Proxy | `Proxy/docker-compose.yml` | `proxy/docker-compose.yml` | `BASE_DIR` = `/home/leojimenezcr/proxy` (se monta completa, sin subcarpeta); verificar `URL`, `EMAIL`, `EXTRA_DOMAINS` |
+| rasa-faq-demo | `rasa-faq-demo/docker-compose.yml` | `stacks/rasa-faq-demo/docker-compose.yml` | `BASE_DIR` = `/home/leojimenezcr/rasa-faq-demo` (se monta completa en `rasa`; `index.html` dentro se monta aparte en `webchat`) |
+| Transmission | `Transmission/docker-compose.yml` | `stacks/Transmission/docker-compose.yml` | `BASE_DIR` = `/home/leojimenezcr/transmission` (contiene `config/`, `downloads/`, `watch/`); verificar `USER`, `PASS` |
 | watchtower | `watchtower/docker-compose.yml` | `stacks/watchtower/docker-compose.yml` | (ninguna) |
 
 ## Orden sugerido de repunte en Portainer

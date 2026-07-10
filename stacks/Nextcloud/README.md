@@ -11,10 +11,12 @@ Nube personal (Nextcloud + MariaDB + Redis).
 | nextcloudredis | — | — |
 
 ## Volúmenes
-| Variable | Monta en | Descripción |
+`BASE_DIR` es la carpeta raíz de este stack en el host.
+
+| Ruta | Monta en | Descripción |
 |---|---|---|
-| `NEXTCLOUD_DATA_DIR` | `/var/www/html` (nextcloud) | Datos de la app |
-| `NEXTCLOUD_DB_DIR` | `/var/lib/mysql` (nextclouddb) | Datos de MariaDB |
+| `${BASE_DIR}/nextclouddata` | `/var/www/html` (nextcloud) | Datos de la app |
+| `${BASE_DIR}/nextclouddb` | `/var/lib/mysql` (nextclouddb) | Datos de MariaDB |
 
 ## Depende de
 `nextcloud` depende internamente de `nextclouddb` y `nextcloudredis` (mismo

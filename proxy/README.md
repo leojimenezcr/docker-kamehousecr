@@ -13,9 +13,9 @@ internet a través de este proxy.
 | proxy | 443 | 443 |
 
 ## Volúmenes
-| Variable | Monta en | Descripción |
+| Ruta | Monta en | Descripción |
 |---|---|---|
-| `PROXY_CONFIG_DIR` | `/config` | Config completa de SWAG (certificados, nginx interno, etc.) |
+| `${BASE_DIR}` | `/config` | Config completa de SWAG (certificados, nginx interno, etc.) — se monta la carpeta raíz completa, sin subcarpeta, porque todo vive plano ahí |
 
 ## Redes
 Único servicio del repo con `networks.external: true`, hacia
@@ -38,7 +38,7 @@ Ver `.env.example` en esta misma carpeta y la tabla correspondiente en
 ## Sobre `nginx.conf` y `conf.d/` (placeholders, no wireados todavía)
 `nginx.conf` y `conf.d/` en esta carpeta son **placeholders documentados**,
 no contienen configuración real. La configuración real de SWAG (certificados,
-site-confs, etc.) vive hoy en el bind mount del host (`PROXY_CONFIG_DIR`,
+site-confs, etc.) vive hoy en el bind mount del host (`BASE_DIR`,
 actualmente `/home/leojimenezcr/proxy`), **fuera de este repo git**.
 
 Migrar esa configuración real al repo es un paso posterior manual (por SSH
