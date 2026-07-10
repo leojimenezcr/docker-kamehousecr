@@ -49,11 +49,18 @@ propia copia desde el bind mount (`BASE_DIR`), así que este archivo es hoy
 referencia/backup en git, no la fuente que usa el contenedor en vivo.
 
 Cuando se quiera que sí lo sea, el `docker-compose.yml` de este stack
-deberá agregar un bind mount adicional montando `proxy/conf.d/` (de este
-repo) dentro del contenedor, en la ruta que corresponda según la
-convención de SWAG — **como bind mount versionado, no como volumen
-anónimo**. Ese cambio no se hizo todavía para evitar adivinar esa ruta
-interna sin confirmarla primero.
+deberá agregar un bind mount adicional montando `proxy/conf.d/default.conf`
+(de este repo) sobre `/config/nginx/site-confs/default.conf` dentro del
+contenedor — ruta confirmada contra el host real (`BASE_DIR` se monta
+completo en `/config`, y el archivo real vive en
+`${BASE_DIR}/nginx/site-confs/default.conf`) — **como bind mount
+versionado de ese único archivo, no como volumen anónimo ni montando toda
+la carpeta `nginx/`** (esa carpeta tiene mucho más contenido gestionado
+por SWAG que no debe versionarse ni sobrescribirse).
 
 Ver `scripts/sync-proxy-conf.sh` (en la raíz del repo) para el script que
-sincroniza `proxy/conf.d/` contra el bind mount real del host.
+sincroniza puntualmente `proxy/conf.d/default.conf` contra
+`${BASE_DIR}/nginx/site-confs/default.conf` en el host — nunca el resto
+del árbol de `${BASE_DIR}` (que incluye `dns-conf/`, `etc/letsencrypt/`,
+`keys/` con certificados y claves privadas, `fail2ban/`, etc., todo
+gestionado por SWAG y fuera del alcance de este repo).

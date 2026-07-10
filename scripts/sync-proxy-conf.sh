@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
 #
-# sync-proxy-conf.sh — sincroniza la config de nginx/SWAG entre este repo
-# (proxy/conf.d, proxy/nginx.conf) y el bind mount real del host donde
-# corre el contenedor de proxy. Pensado para correr en el propio host del
-# homelab, donde este repo está clonado.
+# sync-proxy-conf.sh — sincroniza el único archivo de config de SWAG que
+# está versionado en este repo (proxy/conf.d/default.conf) contra su
+# ubicación real dentro del bind mount del host
+# (<PROXY_HOST_CONFIG_DIR>/nginx/site-confs/default.conf). Pensado para
+# correr en el propio host del homelab, donde este repo está clonado.
 #
-# proxy/conf.d/default.conf ya es un snapshot real versionado (copiado
-# manualmente del servidor, ver proxy/README.md); proxy/nginx.conf sigue
-# siendo un placeholder sin uso. Este script sirve para mantener ese
-# snapshot sincronizado con el bind mount real del host en ambas
-# direcciones — no sincroniza nada automáticamente por sí solo.
+# El bind mount real de SWAG en el host (${PROXY_HOST_CONFIG_DIR}) tiene
+# mucho más contenido que este archivo: crontabs/, dns-conf/,
+# etc/letsencrypt/ (certificados), keys/ (claves privadas), fail2ban/,
+# log/, php/, www/, etc. — todo generado/gestionado por SWAG, nada de eso
+# se versiona ni se sincroniza. Este script solo toca el archivo puntual
+# nginx/site-confs/default.conf, nunca el resto del árbol.
 #
 # Modo seguro por defecto: dry-run (rsync -n). Requiere --apply para
 # ejecutar de verdad. Tras un --to-host --apply exitoso, recarga nginx
@@ -20,11 +22,9 @@
 #   scripts/sync-proxy-conf.sh --to-host   [--apply]   # repo -> host
 #
 # Variables de entorno (opcionales, con default):
-#   PROXY_HOST_CONFIG_DIR   Ruta real del bind mount en el host.
+#   PROXY_HOST_CONFIG_DIR   Raíz real del bind mount en el host.
 #                            <<< PONER ACÁ LA RUTA REAL DEL SERVIDOR >>>
 #                            (default abajo: /home/leojimenezcr/proxy)
-#   PROXY_REPO_CONF_DIR     Ruta de proxy/ dentro de este repo (default:
-#                            se calcula sola a partir de este script)
 #   PROXY_CONTAINER_NAME    Nombre del contenedor de proxy para el reload
 #                            (default: proxy)
 
@@ -35,8 +35,10 @@ REPO_ROOT="$(cd -- "${SCRIPT_DIR}/.." &>/dev/null && pwd)"
 
 # <<< AJUSTAR ACÁ la ruta real del servidor si difiere del default >>>
 PROXY_HOST_CONFIG_DIR="${PROXY_HOST_CONFIG_DIR:-/home/leojimenezcr/proxy}"
-PROXY_REPO_CONF_DIR="${PROXY_REPO_CONF_DIR:-${REPO_ROOT}/proxy}"
 PROXY_CONTAINER_NAME="${PROXY_CONTAINER_NAME:-proxy}"
+
+HOST_FILE="${PROXY_HOST_CONFIG_DIR}/nginx/site-confs/default.conf"
+REPO_FILE="${REPO_ROOT}/proxy/conf.d/default.conf"
 
 DIRECTION=""
 APPLY="false"
@@ -66,20 +68,20 @@ if [[ "$APPLY" != "true" ]]; then
 fi
 
 if [[ "$DIRECTION" == "to-repo" ]]; then
-  SRC="${PROXY_HOST_CONFIG_DIR}/"
-  DST="${PROXY_REPO_CONF_DIR}/"
+  SRC="$HOST_FILE"
+  DST="$REPO_FILE"
   echo "Sincronizando HOST -> REPO"
 else
-  SRC="${PROXY_REPO_CONF_DIR}/"
-  DST="${PROXY_HOST_CONFIG_DIR}/"
+  SRC="$REPO_FILE"
+  DST="$HOST_FILE"
   echo "Sincronizando REPO -> HOST"
 fi
 
 echo "Origen:  ${SRC}"
 echo "Destino: ${DST}"
 
-if [[ ! -d "$SRC" ]]; then
-  echo "ERROR: el directorio origen no existe: ${SRC}" >&2
+if [[ ! -f "$SRC" ]]; then
+  echo "ERROR: el archivo origen no existe: ${SRC}" >&2
   exit 1
 fi
 
