@@ -59,43 +59,43 @@ repository"**:
      redespliegue inmediatamente. Copiarla con el botón "Copy link".
 3. Save settings.
 
-### ⚠ La URL que copia "Copy link" no sirve tal cual
+### ⚠ Sobre la URL que da "Copy link"
 
-Portainer arma esa URL con el host y puerto donde escucha directo (en este
-homelab, `https://kamehousecr.ddns.net:9443/...`), sin saber que hay un
-proxy (SWAG) delante. Ese puerto expone el certificado **autofirmado** de
-Portainer, no el de Let's Encrypt de SWAG — un `curl`/`POST` directo a esa
-URL falla con:
+Portainer arma esa URL usando el origin del navegador en el momento de
+copiarla — **no** sabe que corre detrás de un proxy con subpath. En este
+homelab (Portainer accedido vía `https://kamehousecr.ddns.net/portainer/`)
+la URL que da el botón aterriza en la **raíz del dominio**, sin puerto ni
+prefijo `/portainer/`:
 ```
-curl: (60) SSL: no alternative certificate subject name matches target hostname
+https://kamehousecr.ddns.net/api/stacks/webhooks/<uuid>
 ```
+Esa URL se puede copiar y usar **tal cual**, no hace falta reescribirla a
+mano — el proxy tiene un location block dedicado (`^~ /api/stacks/webhooks/`
+en `proxy/conf.d/default.conf`, ya versionado) que la reenvía directo al
+puerto HTTP plano de Portainer (9000, sin TLS — es tráfico interno de la
+red docker, no hace falta certificado).
 
-Hay que reescribir la URL a mano para que pase por el proxy, cambiando
-`<dominio>:9443` por `<dominio>/portainer`:
-```
-https://kamehousecr.ddns.net:9443/api/stacks/webhooks/<uuid>
--> https://kamehousecr.ddns.net/portainer/api/stacks/webhooks/<uuid>
-```
+Si en algún momento la URL copiada viene con el puerto 9443 directo
+(`https://kamehousecr.ddns.net:9443/...`) es porque el navegador estaba
+accediendo a Portainer directo por ese puerto en vez de vía `/portainer/`
+— ese puerto expone el certificado **autofirmado** de Portainer (no el de
+Let's Encrypt de SWAG) y un `curl`/`POST` directo falla con
+`SSL: no alternative certificate subject name matches target hostname`.
+Se deja abierto únicamente para entrar directo a Portainer si el proxy
+está caído, no para webhooks — en ese caso, volver a copiar el link desde
+`/portainer/` en vez de usar el puerto directo.
 
-Esto requiere el location block dedicado para `/portainer/api/stacks/webhooks/`
-en `proxy/conf.d/default.conf` (ya versionado) — sin él, Portainer responde
-404 porque no conoce el subpath `/portainer/` (sus rutas de API son
-literalmente `/api/...`, el proxy tiene que quitar el prefijo antes de
-reenviar). Si se edita ese archivo, hay que sincronizarlo al servidor con
-`scripts/sync-proxy-conf.sh --to-host --apply` (reinicia el proxy) para que
-el cambio quede activo — ver `proxy/conf.d/README.md`.
-
-El puerto 9443 se deja abierto únicamente para entrar directo a Portainer
-si el proxy está caído, no para webhooks.
+Si se edita `proxy/conf.d/default.conf`, hay que sincronizarlo al servidor
+con `scripts/sync-proxy-conf.sh --to-host --apply` (reinicia el proxy) para
+que el cambio quede activo — ver `proxy/conf.d/README.md`.
 
 ### Disparar el webhook desde este repo
 
 1. Copiar `scripts/webhooks.env.example` a `scripts/webhooks.env`
    (gitignorado — nunca se commitea, tiene URLs con UUID que actúan como
    token).
-2. Pegar ahí la URL real de cada stack que tenga el webhook habilitado,
-   **ya reescrita** con el formato `/portainer/api/stacks/webhooks/<uuid>`
-   (ver arriba).
+2. Pegar ahí la URL real de cada stack que tenga el webhook habilitado, tal
+   como la da "Copy link" (ver arriba).
 3. Después de pushear un cambio:
    ```bash
    scripts/trigger-portainer-redeploy.sh <nombre-stack>
