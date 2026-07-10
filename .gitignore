@@ -1,0 +1,21 @@
+# Archivos de variables de entorno reales (nunca commitear valores reales)
+.env
+**/.env
+/stack.env
+
+# Excepciones: sí versionar los templates de ejemplo
+!.env.example
+!**/.env.example
+
+# Webhooks reales de Portainer (URLs con UUID sensible)
+scripts/webhooks.env
+
+# Llaves y secretos
+*.key
+*.pem
+secrets/
+
+# Archivos de editor / sistema operativo
+.DS_Store
+*.swp
+*.swo
