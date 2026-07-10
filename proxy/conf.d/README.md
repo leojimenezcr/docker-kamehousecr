@@ -1,15 +1,18 @@
 # proxy/conf.d
 
-Acá van los server blocks de nginx, uno por dominio/servicio (ej.
-`nextcloud.subdomain.conf`, `jellyfin.subdomain.conf`, etc.), una vez que se
-migre la configuración real de SWAG a este repo.
+Acá van los server blocks de nginx, uno por dominio/servicio.
 
-Hoy esta carpeta está **vacía** (solo este README) porque la configuración
-real vive únicamente en el bind mount del host (`BASE_DIR`,
-actualmente `/home/leojimenezcr/proxy`), fuera de git. No se inventaron
-server blocks acá — ver `../README.md` para el detalle completo de por qué
-y cómo migrar esa configuración.
+`default.conf` es un **snapshot versionado real** de la config de SWAG que
+corre hoy en el servidor (copiado manualmente desde el host) — define el
+dominio base (`kamehousecr.ddns.net`) y los `location` block por servicio
+(portainer, jellyfin, navidrome, nextcloud, transmission vía el subfolder
+method). Ver `../../docs/ARCHITECTURE.md` para el mapeo de dominios que se
+extrajo de este archivo.
 
-Cuando se traiga la config real por SSH, `proxy/docker-compose.yml` deberá
-montar esta carpeta como bind mount versionado (no volumen anónimo) para
-que quede en git.
+**Importante**: `proxy/docker-compose.yml` todavía **no monta esta carpeta**
+dentro del contenedor — SWAG en el servidor sigue leyendo su propia copia
+desde el bind mount (`BASE_DIR`). `default.conf` está en git como
+referencia y backup versionado, no es (todavía) la fuente de verdad que usa
+el contenedor en vivo. Cuando se quiera que sí lo sea, `proxy/docker-compose.yml`
+deberá montar esta carpeta como bind mount versionado (no volumen anónimo)
+en la ruta que corresponda según la convención de SWAG.

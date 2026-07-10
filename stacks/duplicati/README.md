@@ -1,5 +1,9 @@
 # duplicati
 
+## ⚠ Estado
+Versionado en el repo, pero **sin stack creado en Portainer actualmente**
+(no está desplegado). Se mantiene el código por si se vuelve a necesitar.
+
 ## Qué hace
 Backups programados con Duplicati.
 
@@ -19,7 +23,8 @@ Backups programados con Duplicati.
 Ninguno.
 
 ## Nombre del stack en Portainer
-`duplicati` (asumido = nombre de carpeta, verificar contra la UI real).
+No aplica hoy — no hay stack creado en Portainer para `duplicati`. Si se
+vuelve a desplegar, se asumiría `duplicati` (= nombre de carpeta).
 
 ## Variables de entorno
 Ver `.env.example` en esta misma carpeta y la tabla correspondiente en

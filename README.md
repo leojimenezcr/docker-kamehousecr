@@ -28,19 +28,13 @@ Ver la tabla completa en [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 | Stack | Descripción |
 |---|---|
-| `stacks/applio` | Voz/TTS custom |
-| `stacks/coqui` | TTS (Coqui) |
-| `stacks/duplicati` | Backups |
+| `stacks/duplicati` | Backups — versionado, no desplegado actualmente |
 | `stacks/immich-app` | Fotos/videos self-hosted |
 | `stacks/isp-monitor` | Monitoreo de conectividad ISP (Prometheus + Grafana) |
-| `stacks/jellyfin` | Media server + arr-stack |
+| `stacks/jellyfin` | Media server + arr-stack (incluye transmission embebido) |
 | `stacks/navidrome` | Streaming de música |
 | `stacks/nextcloud` | Nube personal |
-| `stacks/ollama` | LLM local + WebUI |
-| `stacks/piper` | TTS liviano |
 | `stacks/portainer` | Gestor de contenedores |
-| `stacks/rasa-faq-demo` | Demo de chatbot FAQ |
-| `stacks/transmission` | Cliente BitTorrent |
 | `stacks/watchtower` | Auto-actualización de contenedores |
 | `proxy` | Reverse proxy + HTTPS (SWAG) |
 
@@ -50,7 +44,7 @@ Ver la tabla completa en [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 2. Confirmar los cambios (commit) y subirlos al branch que Portainer está siguiendo.
 3. Redesplegar el stack manualmente desde la UI de Portainer (Stacks →
    `<nombre>` → "Pull and redeploy"). Portainer Community Edition no
-   soporta webhooks de auto-redeploy para stacks — ver
+   soporta webhooks de auto-redespliegue para stacks — ver
    [`docs/PORTAINER-SETUP.md`](docs/PORTAINER-SETUP.md) para el detalle.
 
 ## Documentación

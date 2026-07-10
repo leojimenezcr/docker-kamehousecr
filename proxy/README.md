@@ -35,24 +35,25 @@ verificar contra la UI real).
 Ver `.env.example` en esta misma carpeta y la tabla correspondiente en
 `../docs/PORTAINER-SETUP.md`.
 
-## Sobre `nginx.conf` y `conf.d/` (placeholders, no conectados todavía)
-`nginx.conf` y `conf.d/` en esta carpeta son **placeholders documentados**,
-no contienen configuración real. La configuración real de SWAG (certificados,
-site-confs, etc.) vive hoy en el bind mount del host (`BASE_DIR`,
-actualmente `/home/leojimenezcr/proxy`), **fuera de este repo git**.
+## Sobre `nginx.conf` y `conf.d/`
+`nginx.conf` sigue siendo un **placeholder documentado**, sin uso — SWAG
+gestiona su propia config interna, no lo monta.
 
-Migrar esa configuración real al repo es un paso posterior manual (por SSH
-al servidor), fuera del alcance de esta reorganización — no se inventó
-ningún server block ni se adivinó la ruta interna exacta que usa SWAG para
-sus site-confs.
+`conf.d/default.conf` en cambio **ya es real**: es un snapshot versionado
+del `default.conf` que corre hoy en el servidor (copiado manualmente por el
+usuario), con los `server`/`location` block reales de cada servicio
+expuesto. Ver `conf.d/README.md` y `../docs/ARCHITECTURE.md` para el
+detalle. Lo que falta todavía: `proxy/docker-compose.yml` **no monta
+`conf.d/`** dentro del contenedor — SWAG en el servidor sigue leyendo su
+propia copia desde el bind mount (`BASE_DIR`), así que este archivo es hoy
+referencia/backup en git, no la fuente que usa el contenedor en vivo.
 
-Cuando esa migración se haga, el `docker-compose.yml` de este stack deberá
-agregar un bind mount adicional montando `proxy/conf.d/` (de este repo)
-dentro del contenedor, en la ruta que corresponda según la convención de
-SWAG — **como bind mount versionado, no como volumen anónimo**, para que la
-configuración de nginx quede en git. Ese cambio no se hizo en esta
-reorganización para evitar adivinar esa ruta interna.
+Cuando se quiera que sí lo sea, el `docker-compose.yml` de este stack
+deberá agregar un bind mount adicional montando `proxy/conf.d/` (de este
+repo) dentro del contenedor, en la ruta que corresponda según la
+convención de SWAG — **como bind mount versionado, no como volumen
+anónimo**. Ese cambio no se hizo todavía para evitar adivinar esa ruta
+interna sin confirmarla primero.
 
 Ver `scripts/sync-proxy-conf.sh` (en la raíz del repo) para el script que
-sincroniza `proxy/conf.d/` contra el bind mount real del host una vez que
-la migración esté hecha.
+sincroniza `proxy/conf.d/` contra el bind mount real del host.

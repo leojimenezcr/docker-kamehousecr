@@ -5,10 +5,11 @@
 # corre el contenedor de proxy. Pensado para correr en el propio host del
 # homelab, donde este repo está clonado.
 #
-# Hoy proxy/conf.d y proxy/nginx.conf son PLACEHOLDERS (ver proxy/README.md)
-# porque la config real de SWAG solo existe en el volumen del host, no en
-# git. Este script queda listo para cuando se migre esa config real al
-# repo — no la migra por sí solo.
+# proxy/conf.d/default.conf ya es un snapshot real versionado (copiado
+# manualmente del servidor, ver proxy/README.md); proxy/nginx.conf sigue
+# siendo un placeholder sin uso. Este script sirve para mantener ese
+# snapshot sincronizado con el bind mount real del host en ambas
+# direcciones — no sincroniza nada automáticamente por sí solo.
 #
 # Modo seguro por defecto: dry-run (rsync -n). Requiere --apply para
 # ejecutar de verdad. Tras un --to-host --apply exitoso, recarga nginx
