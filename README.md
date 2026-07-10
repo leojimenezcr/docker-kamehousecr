@@ -51,5 +51,6 @@ Ver la tabla completa en [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — mapa de servicios,
   puertos, dependencias entre stacks, conflictos conocidos.
-- [`docs/PORTAINER-SETUP.md`](docs/PORTAINER-SETUP.md) — cómo actualizar la ruta de cada
-  stack en Portainer tras esta reorganización, variables a cargar en la UI.
+- [`docs/PORTAINER-SETUP.md`](docs/PORTAINER-SETUP.md) — Compose path y
+  variables a cargar en la UI para cada stack, cómo funciona el
+  redespliegue.

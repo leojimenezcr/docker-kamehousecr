@@ -71,5 +71,6 @@ standalone) por no usarse más. Queda un solo punto pendiente:
 
 `immich-app`, `jellyfin` y `nextcloud` usan `env_file` apuntando a un
 `stack.env` que Portainer genera en la raíz del clon del repositorio (nunca
-versionado en git). Ver `docs/PORTAINER-SETUP.md` para el detalle de la corrección
-de ruta relativa que requirió esta reorganización.
+versionado en git). Ver `docs/PORTAINER-SETUP.md` para el detalle de cómo
+funciona ese mecanismo y qué hacer si se vuelve a mover alguno de esos
+`docker-compose.yml`.

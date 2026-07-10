@@ -1,43 +1,48 @@
 # Configuración de stacks en Portainer (GitOps)
 
-> **CRÍTICO — leer antes de aplicar el merge de `reorg/estructura-stacks`:**
-> Los stacks `immich-app`, `jellyfin` y `nextcloud` usan
-> `env_file: ../../stack.env`. Ese `stack.env` **no es un archivo que haya
-> que crear a mano ni versionar en git**: Portainer lo genera automáticamente cada
-> vez que se guardan variables en la sección "Environment variables" de la
-> UI de un stack con repositorio Git, escribiéndolas en un archivo
-> `stack.env` en la raíz del clon local de **ese stack en particular**.
-> Cada stack tiene su propio clon independiente del repositorio en el
-> filesystem de Portainer, así que este `stack.env` es privado de cada
-> stack (no es un archivo compartido entre stacks, aunque el nombre sea
-> igual en todos) — por eso nunca existió ni va a existir en este repo git.
->
-> Antes de esta reorganización, el compose de esos 3 stacks vivía en
-> `<servicio>/docker-compose.yml` y usaba `env_file: ../stack.env` (un
-> nivel arriba = raíz del clon de ese stack). Ahora que el compose vive en
-> `stacks/<servicio>/docker-compose.yml` (un nivel más adentro), la ruta
-> relativa hacia esa raíz pasó a `../../stack.env` — **ya corregida en este
-> branch**. Portainer sigue generando el `stack.env` en el mismo lugar de
-> siempre (la raíz del clon de ese stack); lo único que cambió es cuántos
-> `../` hacen falta para llegar ahí desde el compose.
->
-> **Después de actualizar el "Compose path" de cada uno de esos 3 stacks en
-> Portainer, verificar explícitamente** que las apps siguen levantando con
-> sus credenciales (login a Nextcloud/Immich, biblioteca de Jellyfin
-> visible) antes de dar por cerrada la migración de cada stack. Si algo no
-> carga, revisar primero esta ruta.
+Referencia para configurar y mantener cada stack de este repo en Portainer:
+qué "Compose path" usar, qué variables cargar en la UI de cada stack, y
+cómo funciona el redespliegue. No es un log de migración — se actualiza
+cada vez que se agrega, quita o mueve un stack.
 
-## Cómo actualizar cada stack en Portainer
+## Cómo crear o revisar un stack en Portainer
 
-Para cada stack: Portainer UI → Stacks → `<nombre>` → Editor → cambiar
-**Compose path** a la ruta "NUEVO" de la tabla de abajo → agregar las
-variables de entorno nuevas si corresponde → Update the stack. Las
-"Environment variables" ya existentes en Portainer no se pierden al cambiar
-el Compose path, pero hay que **agregar** las variables nuevas listadas
-abajo antes del redespliegue si todavía no existían.
+Portainer UI → Stacks → `<nombre>` (o "Add stack" si es nuevo) → tipo
+"Repository":
+1. **Repository URL** y **Reference** (branch, normalmente `main`).
+2. **Compose path**: la ruta de la tabla de abajo, relativa a la raíz del
+   repo (ej. `stacks/nextcloud/docker-compose.yml`, o `proxy/docker-compose.yml`
+   para el proxy).
+3. **Environment variables**: cargar las de la tabla de abajo (y las que
+   liste el `.env.example` de esa carpeta). No se pierden al editar el
+   Compose path de un stack ya creado.
+4. Deploy the stack / Update the stack.
 
-**Portainer Community Edition no soporta webhooks de auto-redespliegue para
-stacks** (esa función requiere Business Edition). Después de subir un
+## Sobre `stack.env` y `env_file`
+
+Los stacks `immich-app`, `jellyfin` y `nextcloud` usan
+`env_file: ../../stack.env` en su `docker-compose.yml`. Ese `stack.env`
+**no es un archivo que haya que crear a mano ni versionar en git**:
+Portainer lo genera automáticamente cada vez que se guardan variables en la
+sección "Environment variables" de la UI de un stack con repositorio Git,
+escribiéndolas en un archivo `stack.env` en la raíz del clon local de
+**ese stack en particular**. Cada stack tiene su propio clon independiente
+del repositorio en el filesystem de Portainer, así que este `stack.env` es
+privado de cada stack (no es un archivo compartido entre stacks, aunque el
+nombre sea igual en todos) — por eso nunca existió ni va a existir en este
+repo git.
+
+La ruta relativa (`../../stack.env`) depende de la profundidad del Compose
+path: apunta a la raíz del clon del stack. **Si en el futuro se vuelve a
+mover el `docker-compose.yml` de alguno de estos 3 stacks a otra carpeta,
+hay que ajustar esa ruta relativa en consecuencia** (un `../` por cada
+nivel de anidamiento) y verificar login/funcionalidad después del cambio —
+es el punto más fácil de romper silenciosamente en este repo.
+
+## Redespliegue
+
+**Portainer Community Edition no soporta webhooks de auto-redespliegue
+para stacks** (esa función requiere Business Edition). Después de subir un
 cambio a este repo, hay que redesplegar cada stack manualmente desde la UI
 (Stacks → `<nombre>` → "Pull and redeploy" / volver a guardar el stack) —
 o revisar si ese stack tiene "Automatic updates" con polling por intervalo
@@ -46,34 +51,24 @@ Portainer si está disponible y activo).
 
 ## Tabla de stacks
 
-| Stack en Portainer (asumido = nombre de carpeta, VERIFICAR contra la UI) | Compose path VIEJO | Compose path NUEVO | Variables a cargar/agregar en la UI (valor actual a preservar, cuando se conoce) |
-|---|---|---|---|
-| duplicati ⚠ NO creado en Portainer | `duplicati/docker-compose.yml` | `stacks/duplicati/docker-compose.yml` | `DUPLICATI_CONFIG_DIR` = `/home/leojimenezcr/duplicati`; `DUPLICATI_BACKUPS_DIR` = `/home/leojimenezcr/respaldos`; `DUPLICATI_SOURCE_DIR` = `/home/leojimenezcr` (⚠ home completo) — info conservada para si se vuelve a desplegar, no aplica hoy |
-| immich-app | `immich-app/docker-compose.yml` | `stacks/immich-app/docker-compose.yml` | Sin variables nuevas — verificar que `IMMICH_VERSION`, `UPLOAD_LOCATION`, `BASE_DIR`, `DB_USERNAME`, `DB_PASSWORD`, `DB_DATABASE_NAME` ya cargadas sigan intactas. **Ver aviso de `env_file` arriba.** |
-| isp-monitor | `isp-monitor/docker-compose.yml` | `stacks/isp-monitor/docker-compose.yml` | Sin variables nuevas — verificar `BASE_DIR`, `GF_SECURITY_ADMIN_USER`, `GF_SECURITY_ADMIN_PASSWORD` |
-| jellyfin | `jellyfin/docker-compose.yml` | `stacks/jellyfin/docker-compose.yml` | Sin variables nuevas — verificar `BASE_DIR`, `MEDIA_DIR`, `TRANSMISSION_USER`, `TRANSMISSION_PASS`, `TINYMEDIAMANAGER_PASSWORD`. **Ver aviso de `env_file` arriba.** |
-| navidrome | `navidrome/docker-compose.yml` | `stacks/navidrome/docker-compose.yml` | Sin variables nuevas — verificar `BASE_DIR`, `MEDIA_DIR`, `ND_LASTFM_APIKEY`, `ND_LASTFM_SECRET` |
-| nextcloud | `Nextcloud/docker-compose.yml` | `stacks/nextcloud/docker-compose.yml` | `BASE_DIR` = `/home/leojimenezcr/nextcloud` (contiene `nextclouddata/` y `nextclouddb/`); verificar `MYSQL_HOST`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_ROOT_PASSWORD`. **Ver aviso de `env_file` arriba.** |
-| portainer | `Portainer/docker-compose.yml` | `stacks/portainer/docker-compose.yml` | (ninguna) |
-| proxy | `Proxy/docker-compose.yml` | `proxy/docker-compose.yml` | `BASE_DIR` = `/home/leojimenezcr/proxy` (se monta completa, sin subcarpeta); verificar `URL`, `EMAIL` (`EXTRA_DOMAINS` ya no se usa, comentado) |
-| watchtower | `watchtower/docker-compose.yml` | `stacks/watchtower/docker-compose.yml` | (ninguna) |
+| Stack en Portainer (asumido = nombre de carpeta, VERIFICAR contra la UI) | Compose path | Variables a cargar en la UI |
+|---|---|---|
+| duplicati ⚠ NO creado en Portainer | `stacks/duplicati/docker-compose.yml` | `DUPLICATI_CONFIG_DIR`, `DUPLICATI_BACKUPS_DIR`, `DUPLICATI_SOURCE_DIR` (⚠ home completo) — info conservada para si se vuelve a desplegar, no aplica hoy |
+| immich-app | `stacks/immich-app/docker-compose.yml` | `IMMICH_VERSION`, `UPLOAD_LOCATION`, `BASE_DIR`, `DB_USERNAME`, `DB_PASSWORD`, `DB_DATABASE_NAME`. **Ver `env_file` arriba.** |
+| isp-monitor | `stacks/isp-monitor/docker-compose.yml` | `BASE_DIR`, `GF_SECURITY_ADMIN_USER`, `GF_SECURITY_ADMIN_PASSWORD` |
+| jellyfin | `stacks/jellyfin/docker-compose.yml` | `BASE_DIR`, `MEDIA_DIR`, `TRANSMISSION_USER`, `TRANSMISSION_PASS`, `TINYMEDIAMANAGER_PASSWORD`. **Ver `env_file` arriba.** |
+| navidrome | `stacks/navidrome/docker-compose.yml` | `BASE_DIR`, `MEDIA_DIR`, `ND_LASTFM_APIKEY`, `ND_LASTFM_SECRET` |
+| nextcloud | `stacks/nextcloud/docker-compose.yml` | `BASE_DIR` (contiene `nextclouddata/` y `nextclouddb/`), `MYSQL_HOST`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_ROOT_PASSWORD`. **Ver `env_file` arriba.** |
+| portainer | `stacks/portainer/docker-compose.yml` | (ninguna) |
+| proxy | `proxy/docker-compose.yml` | `BASE_DIR` (se monta completa, sin subcarpeta), `URL`, `EMAIL` (`EXTRA_DOMAINS` ya no se usa, comentado) |
+| watchtower | `stacks/watchtower/docker-compose.yml` | (ninguna) |
 
-## Orden sugerido de actualización de rutas en Portainer
-
-1. Stacks sin `env_file` y sin variables nuevas (isp-monitor, navidrome,
-   portainer, watchtower) — riesgo mínimo, sirven de prueba del patrón.
-2. Stacks con variables nuevas pero sin `env_file` (proxy) — agregar las
-   variables nuevas en la UI antes de aplicar el nuevo Compose path.
-3. Stacks con `env_file` (immich-app, jellyfin, nextcloud) — mayor riesgo,
-   hacerlos al final y verificar login/funcionalidad inmediatamente después
-   de cada uno.
-
-`duplicati` no aplica a este orden: está versionado en el repo pero no
-tiene stack creado en Portainer actualmente.
+Cada carpeta tiene además su propio `.env.example` con el detalle y
+placeholders de estas variables.
 
 ## Nombres de stack en Portainer
 
-No hay forma de derivar del código los nombres exactos que hoy tienen los
-stacks en la UI de Portainer. Se asume que coinciden con el nombre de
-carpeta original (antes de esta reorganización). **Verificar y corregir
-esta tabla contra la UI real antes de ejecutar los cambios.**
+No hay forma de derivar del código los nombres exactos que tienen los
+stacks en la UI de Portainer — la columna "Stack en Portainer" de la tabla
+de arriba asume que coinciden con el nombre de carpeta bajo `stacks/`.
+**Verificar contra la UI real** si hay dudas.
