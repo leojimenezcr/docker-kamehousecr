@@ -2,11 +2,14 @@
 #
 # sync-proxy-conf.sh — sincroniza el único archivo de config de SWAG que
 # está versionado en este repo (proxy/conf.d/default.conf) contra su
-# ubicación real dentro del bind mount del host
-# (<PROXY_HOST_CONFIG_DIR>/nginx/site-confs/default.conf). Pensado para
-# correr en el propio host del homelab, donde este repo está clonado.
+# ubicación real dentro del bind mount del servidor
+# (<PROXY_HOST_CONFIG_DIR>/nginx/site-confs/default.conf), vía SSH.
+# Pensado para correrse desde cualquier máquina donde esté clonado/sincronizado
+# este repo (no hace falta estar logueado en el servidor) — usa SSH
+# (PROXY_SSH_TARGET) para llegar al servidor real. Requiere acceso SSH por
+# llave ya configurado a ese destino (sin prompt de password).
 #
-# El bind mount real de SWAG en el host (${PROXY_HOST_CONFIG_DIR}) tiene
+# El bind mount real de SWAG en el servidor (${PROXY_HOST_CONFIG_DIR}) tiene
 # mucho más contenido que este archivo: crontabs/, dns-conf/,
 # etc/letsencrypt/ (certificados), keys/ (claves privadas), fail2ban/,
 # log/, php/, www/, etc. — todo generado/gestionado por SWAG, nada de eso
@@ -14,18 +17,21 @@
 # nginx/site-confs/default.conf, nunca el resto del árbol.
 #
 # Modo seguro por defecto: dry-run (rsync -n). Requiere --apply para
-# ejecutar de verdad. Tras un --to-host --apply exitoso, recarga nginx
-# dentro del contenedor de proxy.
+# ejecutar de verdad. Tras un --to-host --apply exitoso, reinicia el
+# contenedor de proxy **en el servidor, vía SSH** (esta imagen de SWAG no
+# soporta "nginx -s reload" via docker exec; lo que sí funciona es
+# reiniciar el contenedor completo).
 #
 # Uso:
-#   scripts/sync-proxy-conf.sh --to-repo   [--apply]   # host -> repo
-#   scripts/sync-proxy-conf.sh --to-host   [--apply]   # repo -> host
+#   scripts/sync-proxy-conf.sh --to-repo   [--apply]   # servidor -> repo
+#   scripts/sync-proxy-conf.sh --to-host   [--apply]   # repo -> servidor
 #
 # Variables de entorno (opcionales, con default):
-#   PROXY_HOST_CONFIG_DIR   Raíz real del bind mount en el host.
-#                            <<< PONER ACÁ LA RUTA REAL DEL SERVIDOR >>>
+#   PROXY_SSH_TARGET        Usuario y host SSH del servidor real.
+#                            (default abajo: leojimenezcr@kamehousecr.ddns.net)
+#   PROXY_HOST_CONFIG_DIR   Ruta del bind mount en el servidor (remota, vía SSH).
 #                            (default abajo: /home/leojimenezcr/proxy)
-#   PROXY_CONTAINER_NAME    Nombre del contenedor de proxy para el reload
+#   PROXY_CONTAINER_NAME    Nombre del contenedor de proxy a reiniciar
 #                            (default: proxy)
 
 set -euo pipefail
@@ -33,11 +39,12 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 REPO_ROOT="$(cd -- "${SCRIPT_DIR}/.." &>/dev/null && pwd)"
 
-# <<< AJUSTAR ACÁ la ruta real del servidor si difiere del default >>>
+# <<< AJUSTAR ACÁ si el destino SSH o la ruta real del servidor difieren >>>
+PROXY_SSH_TARGET="${PROXY_SSH_TARGET:-leojimenezcr@kamehousecr.ddns.net}"
 PROXY_HOST_CONFIG_DIR="${PROXY_HOST_CONFIG_DIR:-/home/leojimenezcr/proxy}"
 PROXY_CONTAINER_NAME="${PROXY_CONTAINER_NAME:-proxy}"
 
-HOST_FILE="${PROXY_HOST_CONFIG_DIR}/nginx/site-confs/default.conf"
+HOST_FILE="${PROXY_SSH_TARGET}:${PROXY_HOST_CONFIG_DIR}/nginx/site-confs/default.conf"
 REPO_FILE="${REPO_ROOT}/proxy/conf.d/default.conf"
 
 DIRECTION=""
@@ -70,17 +77,17 @@ fi
 if [[ "$DIRECTION" == "to-repo" ]]; then
   SRC="$HOST_FILE"
   DST="$REPO_FILE"
-  echo "Sincronizando HOST -> REPO"
+  echo "Sincronizando SERVIDOR (${PROXY_SSH_TARGET}) -> REPO"
 else
   SRC="$REPO_FILE"
   DST="$HOST_FILE"
-  echo "Sincronizando REPO -> HOST"
+  echo "Sincronizando REPO -> SERVIDOR (${PROXY_SSH_TARGET})"
 fi
 
 echo "Origen:  ${SRC}"
 echo "Destino: ${DST}"
 
-if [[ ! -f "$SRC" ]]; then
+if [[ "$DIRECTION" == "to-host" && ! -f "$SRC" ]]; then
   echo "ERROR: el archivo origen no existe: ${SRC}" >&2
   exit 1
 fi
@@ -93,7 +100,7 @@ if [[ "$APPLY" != "true" ]]; then
 fi
 
 if [[ "$DIRECTION" == "to-host" ]]; then
-  echo "Recargando nginx dentro del contenedor '${PROXY_CONTAINER_NAME}'..."
-  docker exec "${PROXY_CONTAINER_NAME}" nginx -s reload
+  echo "Reiniciando el contenedor '${PROXY_CONTAINER_NAME}' en ${PROXY_SSH_TARGET} (esta imagen no soporta 'nginx -s reload')..."
+  ssh "$PROXY_SSH_TARGET" docker restart "${PROXY_CONTAINER_NAME}"
   echo "OK."
 fi
