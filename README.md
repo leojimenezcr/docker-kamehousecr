@@ -48,9 +48,10 @@ Ver la tabla completa en [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 1. Editar el `docker-compose.yml` correspondiente en este repo.
 2. Commitear y pushear al branch que Portainer está siguiendo.
-3. En Portainer, redeploy manual o vía webhook (ver
-   [`scripts/trigger-portainer-redeploy.sh`](scripts/trigger-portainer-redeploy.sh)
-   y [`docs/PORTAINER-SETUP.md`](docs/PORTAINER-SETUP.md)).
+3. Redesplegar el stack manualmente desde la UI de Portainer (Stacks →
+   `<nombre>` → "Pull and redeploy"). Portainer Community Edition no
+   soporta webhooks de auto-redeploy para stacks — ver
+   [`docs/PORTAINER-SETUP.md`](docs/PORTAINER-SETUP.md) para el detalle.
 
 ## Documentación
 
