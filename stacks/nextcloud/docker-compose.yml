@@ -3,10 +3,7 @@ version: '3.1'
 services:
   nextcloud:
     #image: nextcloudkame:27
-    # Fijado a 33 (version intermedia) porque Watchtower actualizo de golpe
-    # de 32.0.6.1 a 34.0.1.2 con "latest", saltandose la 33 - Nextcloud no
-    # permite saltar una version mayor. Una vez sano en 33, subir a 34.
-    image: nextcloud:33
+    image: nextcloud:latest
     container_name: nextcloud
     volumes:
       - type: bind
