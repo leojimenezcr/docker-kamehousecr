@@ -117,7 +117,7 @@ el stack).
 | navidrome | `stacks/navidrome/docker-compose.yml` | `BASE_DIR`, `MEDIA_DIR`, `ND_LASTFM_APIKEY`, `ND_LASTFM_SECRET` |
 | nextcloud | `stacks/nextcloud/docker-compose.yml` | `BASE_DIR` (contiene `nextclouddata/` y `nextclouddb/`), `MYSQL_HOST`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_ROOT_PASSWORD`. **Ver `env_file` arriba.** |
 | portainer | `stacks/portainer/docker-compose.yml` | (ninguna) |
-| proxy | `proxy/docker-compose.yml` | `BASE_DIR` (se monta completa, sin subcarpeta), `URL`, `EMAIL` (`EXTRA_DOMAINS` ya no se usa, comentado) |
+| proxy | `proxy/docker-compose.yml` | `BASE_DIR` (se monta completa, sin subcarpeta), `URL`, `EMAIL`, `EXTRA_DOMAINS` (hoy: `photoskamehousecr.ddns.net`, para immich-app) |
 | watchtower | `stacks/watchtower/docker-compose.yml` | (ninguna) |
 
 Cada carpeta tiene además su propio `.env.example` con el detalle y

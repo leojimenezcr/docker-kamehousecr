@@ -18,22 +18,36 @@ internet a través de este proxy.
 | `${BASE_DIR}` | `/config` | Config completa de SWAG (certificados, nginx interno, etc.) — se monta la carpeta raíz completa, sin subcarpeta, porque todo vive plano ahí |
 
 ## Redes
-Único servicio del repo con `networks.external: true` — consume 4 redes
+Único servicio del repo con `networks.external: true` — consume 5 redes
 creadas por sus stacks dueños: `portainer_portainer-net` (`stacks/portainer`),
 `nextcloud_nextcloud-net` (`stacks/nextcloud`), `navidrome_navidrome-net`
-(`stacks/navidrome`) y `jellyfin_jellyfin-net` (`stacks/jellyfin`). Al
-declararlas como `external: true` en vez de unirlas a mano vía la UI de
-Portainer, Compose las reconecta solas en cada redeploy del stack `proxy`
-— no hace falta ningún paso manual después de recrearlo.
+(`stacks/navidrome`), `jellyfin_jellyfin-net` (`stacks/jellyfin`) e
+`immich_immichapp-net` (`stacks/immich-app`). Al declararlas como
+`external: true` en vez de unirlas a mano vía la UI de Portainer, Compose
+las reconecta solas en cada redeploy del stack `proxy` — no hace falta
+ningún paso manual después de recrearlo.
 
-`immich-app` queda afuera de este mecanismo por ahora: su red
-`immichapp-net` está declarada en su compose pero ningún servicio la usa,
-por lo que nunca se creó en el host, y `immich-app` tampoco se expone hoy
-vía este proxy (sigue `PENDIENTE`, ver `../docs/ARCHITECTURE.md`).
+**Orden importante al desplegar por primera vez**: `immich_immichapp-net`
+no existe hasta que `immich-app` se despliega con `immich-server` unido a
+`immichapp-net` — si se redespliega `proxy` antes de eso, el deploy falla
+porque Compose no encuentra la red externa. Desplegar siempre `immich-app`
+primero.
 
 ## Depende de
-`stacks/portainer`, `stacks/nextcloud`, `stacks/navidrome` y
-`stacks/jellyfin` (consume la red externa de cada uno).
+`stacks/portainer`, `stacks/nextcloud`, `stacks/navidrome`,
+`stacks/jellyfin` y `stacks/immich-app` (consume la red externa de cada
+uno).
+
+## Dominios servidos
+- `kamehousecr.ddns.net` (dominio base, `URL`): portainer, jellyfin,
+  navidrome, nextcloud, transmission — método de subcarpeta, ver
+  `conf.d/default.conf`.
+- `photoskamehousecr.ddns.net` (`EXTRA_DOMAINS`, mismo certificado, SAN
+  adicional): immich-app, dominio propio en vez de subcarpeta porque
+  Immich no soporta bien exponerse bajo un subpath (rutas de API/websocket
+  asumen raíz — ver discusión `immich-app/immich#23688`) y el plan
+  gratuito de noip.com no permite subdominios reales. Server block
+  correspondiente en el mismo `conf.d/default.conf`.
 
 ## Nombre del stack en Portainer
 `Proxy` (asumido = nombre de carpeta original antes de esta reorganización,

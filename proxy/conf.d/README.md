@@ -4,10 +4,13 @@ Acá van los server blocks de nginx, uno por dominio/servicio.
 
 `default.conf` es un **snapshot versionado real** de la config de SWAG que
 corre hoy en el servidor (copiado manualmente desde el host) — define el
-dominio base (`kamehousecr.ddns.net`) y los `location` block por servicio
-(portainer, jellyfin, navidrome, nextcloud, transmission vía el subfolder
-method). Ver `../../docs/ARCHITECTURE.md` para el mapeo de dominios que se
-extrajo de este archivo.
+dominio base (`kamehousecr.ddns.net`) con los `location` block por
+servicio (portainer, jellyfin, navidrome, nextcloud, transmission vía el
+subfolder method), y además un segundo `server` block en el mismo archivo
+para `photoskamehousecr.ddns.net` (dominio propio de `immich-app`, no
+subcarpeta — Immich no soporta bien reverse proxy con subpath). Ver
+`../../docs/ARCHITECTURE.md` para el mapeo de dominios que se extrajo de
+este archivo.
 
 **Importante**: `proxy/docker-compose.yml` todavía **no monta este archivo**
 dentro del contenedor — SWAG en el servidor sigue leyendo su propia copia

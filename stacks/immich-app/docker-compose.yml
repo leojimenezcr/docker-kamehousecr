@@ -23,8 +23,7 @@ services:
       - ../../stack.env
     networks:
       - immich-net
-    ports:
-      - '2283:2283'
+      - immichapp-net
     depends_on:
       - redis
       - database
