@@ -20,8 +20,9 @@ Nube personal (Nextcloud + MariaDB + Redis).
 
 ## Depende de
 `nextcloud` depende internamente de `nextclouddb` y `nextcloudredis` (mismo
-stack). Depende del stack `proxy` para exponerse hacia afuera (la red que
-conecta ambos se agrega manualmente vía Portainer UI, no está versionada).
+stack). Depende del stack `proxy` para exponerse hacia afuera vía la red
+`nextcloud-net`, que este stack crea y que `proxy/docker-compose.yml`
+consume como `external: true` (versionada, sin pasos manuales en la UI).
 
 ## Nombre del stack en Portainer
 `nextcloud` (asumido = nombre de carpeta, verificar contra la UI real).

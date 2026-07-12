@@ -28,14 +28,26 @@ services:
         target: /config
     networks:
       # La comunicacion con los contenedores es por
-      # redes individuales, para proporcionar aislamiento
-      # Las redes de otros contenedores se agregan por medio de Portainer
+      # redes individuales, para proporcionar aislamiento.
+      # Se declaran como "external" porque las crea el stack dueño de cada
+      # app (portainer, nextcloud, navidrome, jellyfin) — asi Compose las
+      # reconecta solas en cada redeploy del proxy, sin pasos manuales en
+      # la UI de Portainer.
       - portainer_portainer-net
+      - nextcloud_nextcloud-net
+      - navidrome_navidrome-net
+      - jellyfin_jellyfin-net
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
     restart: always
-    
+
 # Redes y volumenes utilizados por los servicios
 networks:
   portainer_portainer-net:
+    external: true
+  nextcloud_nextcloud-net:
+    external: true
+  navidrome_navidrome-net:
+    external: true
+  jellyfin_jellyfin-net:
     external: true

@@ -18,14 +18,22 @@ internet a través de este proxy.
 | `${BASE_DIR}` | `/config` | Config completa de SWAG (certificados, nginx interno, etc.) — se monta la carpeta raíz completa, sin subcarpeta, porque todo vive plano ahí |
 
 ## Redes
-Único servicio del repo con `networks.external: true`, hacia
-`portainer_portainer-net` (red creada por el stack `stacks/portainer`). Las
-redes de los demás stacks (nextcloud, jellyfin, etc.) se agregan
-manualmente a este contenedor vía la UI de Portainer — no están
-versionadas en ningún `docker-compose.yml` de este repo.
+Único servicio del repo con `networks.external: true` — consume 4 redes
+creadas por sus stacks dueños: `portainer_portainer-net` (`stacks/portainer`),
+`nextcloud_nextcloud-net` (`stacks/nextcloud`), `navidrome_navidrome-net`
+(`stacks/navidrome`) y `jellyfin_jellyfin-net` (`stacks/jellyfin`). Al
+declararlas como `external: true` en vez de unirlas a mano vía la UI de
+Portainer, Compose las reconecta solas en cada redeploy del stack `proxy`
+— no hace falta ningún paso manual después de recrearlo.
+
+`immich-app` queda afuera de este mecanismo por ahora: su red
+`immichapp-net` está declarada en su compose pero ningún servicio la usa,
+por lo que nunca se creó en el host, y `immich-app` tampoco se expone hoy
+vía este proxy (sigue `PENDIENTE`, ver `../docs/ARCHITECTURE.md`).
 
 ## Depende de
-`stacks/portainer` (consume su red externa `portainer_portainer-net`).
+`stacks/portainer`, `stacks/nextcloud`, `stacks/navidrome` y
+`stacks/jellyfin` (consume la red externa de cada uno).
 
 ## Nombre del stack en Portainer
 `Proxy` (asumido = nombre de carpeta original antes de esta reorganización,

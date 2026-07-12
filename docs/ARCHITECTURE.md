@@ -26,11 +26,11 @@ referencia — no los lee Portainer automáticamente.
 | jellyfin / transmission (embebido) | 9091:9091, 51413:51413(+udp) | `kamehousecr.ddns.net/transmission` | — | — |
 | jellyfin / tinymediamanager | 4000:4000 | PENDIENTE | — | — |
 | navidrome | 4533:4533 | `kamehousecr.ddns.net/navidrome/` | — | — |
-| nextcloud | sin puerto host | `kamehousecr.ddns.net/` (location raíz) | nextclouddb, nextcloudredis | Expuesto vía `proxy` (red no versionada) |
+| nextcloud | sin puerto host | `kamehousecr.ddns.net/` (location raíz) | nextclouddb, nextcloudredis | Expuesto vía `proxy` (red `nextcloud-net`, versionada como `external: true` en `proxy/docker-compose.yml`) |
 | nextcloud / nextclouddb (mariadb) | sin puerto host | — | — | — |
 | nextcloud / nextcloudredis | sin puerto host | — | — | — |
 | portainer | 8000:8000, 9443:9443 | `kamehousecr.ddns.net/portainer/` | — | Dueño de la red externa `portainer_portainer-net` que consume `proxy` |
-| proxy (swag) | 80:80, 443:443 | `kamehousecr.ddns.net` (dominio base) | portainer (consume su red externa) | Único servicio con `networks.external: true`; redes de otros stacks se agregan manualmente vía Portainer UI (no versionado) |
+| proxy (swag) | 80:80, 443:443 | `kamehousecr.ddns.net` (dominio base) | portainer, nextcloud, navidrome, jellyfin (consume la red externa de cada uno) | Único servicio con `networks.external: true`, hacia 4 redes versionadas (ver sección de redes abajo) |
 | watchtower | sin puertos | — | — | Monitorea todos los contenedores con label `com.centurylinklabs.watchtower.enable=true` |
 
 ## Dominios / subdominios
@@ -46,12 +46,20 @@ snapshot respecto al contenedor real.
 
 ## Redes Docker relevantes
 
-- `portainer_portainer-net`: red externa creada por el stack `portainer`,
-  consumida explícitamente solo por `proxy`. Las demás redes que `proxy`
-  necesita para llegar a cada app se agregan manualmente en la UI de
-  Portainer — no están versionadas en ningún compose de este repo.
+- `proxy` consume 4 redes externas, cada una creada por su stack dueño y
+  declarada como `external: true` en `proxy/docker-compose.yml`:
+  `portainer_portainer-net` (dueño: `portainer`), `nextcloud_nextcloud-net`
+  (dueño: `nextcloud`), `navidrome_navidrome-net` (dueño: `navidrome`) y
+  `jellyfin_jellyfin-net` (dueño: `jellyfin`). Al ser `external`, Compose
+  reconecta el contenedor `proxy` a las 4 automáticamente en cada
+  redeploy del stack `proxy` — ya no hace falta unirlas a mano vía la UI
+  de Portainer (así era antes; ver historial de este archivo).
 - Redes declaradas pero no usadas por ningún servicio (dejadas tal cual, no
-  tocadas en esta reorganización): `immichapp-net`.
+  tocadas en esta reorganización): `immichapp-net` (`immich-app`). Como no
+  la usa ningún servicio, Compose nunca la crea en el host — el día que
+  `immich-app` se exponga vía `proxy`, hay que primero hacer que algún
+  servicio de ese stack la use (para que se cree) y recién ahí replicar
+  el mismo patrón `external: true` en `proxy/docker-compose.yml`.
 
 ## Conflictos y pendientes conocidos
 
