@@ -20,8 +20,6 @@ services:
       - ${MEDIA_DIR}/music:/data/music
     networks:
       - jellyfin-net
-    ports:
-      - 8096:8096
     devices:
       - /dev/dri:/dev/dri #Intel GPU for hardware accelerated video encoding (vaapi)
     labels:
