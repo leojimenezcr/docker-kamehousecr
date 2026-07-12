@@ -18,36 +18,43 @@ internet a través de este proxy.
 | `${BASE_DIR}` | `/config` | Config completa de SWAG (certificados, nginx interno, etc.) — se monta la carpeta raíz completa, sin subcarpeta, porque todo vive plano ahí |
 
 ## Redes
-Único servicio del repo con `networks.external: true` — consume 5 redes
+Único servicio del repo con `networks.external: true` — consume 6 redes
 creadas por sus stacks dueños: `portainer_portainer-net` (`stacks/portainer`),
 `nextcloud_nextcloud-net` (`stacks/nextcloud`), `navidrome_navidrome-net`
-(`stacks/navidrome`), `jellyfin_jellyfin-net` (`stacks/jellyfin`) e
-`immich_immichapp-net` (`stacks/immich-app`). Al declararlas como
-`external: true` en vez de unirlas a mano vía la UI de Portainer, Compose
-las reconecta solas en cada redeploy del stack `proxy` — no hace falta
-ningún paso manual después de recrearlo.
+(`stacks/navidrome`), `jellyfin_jellyfin-net` (`stacks/jellyfin`),
+`immich_immichapp-net` (`stacks/immich-app`) e
+`isp-monitor_isp-monitor-net` (`stacks/isp-monitor`, solo la usan
+`grafana` y `prometheus`). Al declararlas como `external: true` en vez de
+unirlas a mano vía la UI de Portainer, Compose las reconecta solas en cada
+redeploy del stack `proxy` — no hace falta ningún paso manual después de
+recrearlo.
 
 **Orden importante al desplegar por primera vez**: `immich_immichapp-net`
-no existe hasta que `immich-app` se despliega con `immich-server` unido a
-`immichapp-net` — si se redespliega `proxy` antes de eso, el deploy falla
-porque Compose no encuentra la red externa. Desplegar siempre `immich-app`
+e `isp-monitor_isp-monitor-net` no existen hasta que `immich-app` e
+`isp-monitor` respectivamente se despliegan con sus servicios unidos a esas
+redes — si se redespliega `proxy` antes de eso, el deploy falla porque
+Compose no encuentra la red externa. Desplegar siempre el stack dueño
 primero.
 
 ## Depende de
 `stacks/portainer`, `stacks/nextcloud`, `stacks/navidrome`,
-`stacks/jellyfin` y `stacks/immich-app` (consume la red externa de cada
-uno).
+`stacks/jellyfin`, `stacks/immich-app` y `stacks/isp-monitor` (consume la
+red externa de cada uno).
 
 ## Dominios servidos
 - `kamehousecr.ddns.net` (dominio base, `URL`): portainer, jellyfin,
-  navidrome, nextcloud, transmission — método de subcarpeta, ver
-  `conf.d/default.conf`.
+  navidrome, nextcloud, transmission, grafana, prometheus — método de
+  subcarpeta, ver `conf.d/default.conf`.
 - `photoskamehousecr.ddns.net` (`EXTRA_DOMAINS`, mismo certificado, SAN
   adicional): immich-app, dominio propio en vez de subcarpeta porque
   Immich no soporta bien exponerse bajo un subpath (rutas de API/websocket
   asumen raíz — ver discusión `immich-app/immich#23688`) y el plan
   gratuito de noip.com no permite subdominios reales. Server block
   correspondiente en el mismo `conf.d/default.conf`.
+
+`blackbox-exporter` (parte de `isp-monitor`) no se expone vía proxy: su
+página web usa links absolutos y no soporta bien un subpath, y no tiene
+caso de uso público — solo lo consume `prometheus` internamente.
 
 ## Nombre del stack en Portainer
 `Proxy` (asumido = nombre de carpeta original antes de esta reorganización,

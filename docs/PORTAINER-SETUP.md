@@ -112,7 +112,7 @@ el stack).
 |---|---|---|
 | duplicati ⚠ NO creado en Portainer | `stacks/duplicati/docker-compose.yml` | `DUPLICATI_CONFIG_DIR`, `DUPLICATI_BACKUPS_DIR`, `DUPLICATI_SOURCE_DIR` (⚠ home completo) — info conservada para si se vuelve a desplegar, no aplica hoy |
 | immich-app | `stacks/immich-app/docker-compose.yml` | `IMMICH_VERSION`, `UPLOAD_LOCATION`, `BASE_DIR`, `DB_USERNAME`, `DB_PASSWORD`, `DB_DATABASE_NAME`. **Ver `env_file` arriba.** |
-| isp-monitor | `stacks/isp-monitor/docker-compose.yml` | `BASE_DIR`, `GF_SECURITY_ADMIN_USER`, `GF_SECURITY_ADMIN_PASSWORD` |
+| isp-monitor | `stacks/isp-monitor/docker-compose.yml` | `BASE_DIR`, `GF_SECURITY_ADMIN_USER`, `GF_SECURITY_ADMIN_PASSWORD`. Grafana y Prometheus salen por `/grafana/` y `/prometheus/` vía `proxy` (dominio hardcodeado en el compose, no es variable) |
 | jellyfin | `stacks/jellyfin/docker-compose.yml` | `BASE_DIR`, `MEDIA_DIR`, `TRANSMISSION_USER`, `TRANSMISSION_PASS`, `TINYMEDIAMANAGER_PASSWORD`. **Ver `env_file` arriba.** |
 | navidrome | `stacks/navidrome/docker-compose.yml` | `BASE_DIR`, `MEDIA_DIR`, `ND_LASTFM_APIKEY`, `ND_LASTFM_SECRET` |
 | nextcloud | `stacks/nextcloud/docker-compose.yml` | `BASE_DIR` (contiene `nextclouddata/` y `nextclouddb/`), `MYSQL_HOST`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_ROOT_PASSWORD`. **Ver `env_file` arriba.** |

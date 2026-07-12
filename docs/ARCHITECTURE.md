@@ -14,9 +14,9 @@ referencia — no los lee Portainer automáticamente.
 | duplicati | 8200:8200 | PENDIENTE | — | ⚠ monta `$HOME` completo del host como `/source`; versionado en el repo pero **no desplegado actualmente** (no existe como stack en Portainer) |
 | immich-server | sin puerto host | `photoskamehousecr.ddns.net` (dominio propio) | database, redis (internos al stack) | Expuesto vía `proxy` (red `immichapp-net`, versionada como `external: true`); dominio propio en vez de subcarpeta porque Immich no soporta bien reverse proxy con subpath |
 | immich-machine-learning | sin puerto host | — | database, redis | — |
-| isp-monitor / blackbox-exporter | 9115:9115 | PENDIENTE | — | `prometheus.yml` con IPs de ISP hardcodeadas, fuera de alcance de esta reorg |
-| isp-monitor / prometheus | 9090:9090 | PENDIENTE | blackbox-exporter (scrape) | — |
-| isp-monitor / grafana | 3000:3000 | PENDIENTE | prometheus (datasource) | — |
+| isp-monitor / blackbox-exporter | sin puerto host | — | — | Solo consumido internamente por `prometheus` vía `isp-monitor-internal-net`; `prometheus.yml` con IPs de ISP hardcodeadas, fuera de alcance de esta reorg |
+| isp-monitor / prometheus | sin puerto host | `kamehousecr.ddns.net/prometheus/` | blackbox-exporter (scrape) | Expuesto vía `proxy` (red `isp-monitor-net`, `external: true`); subpath vía `--web.external-url`/`--web.route-prefix` |
+| isp-monitor / grafana | sin puerto host | `kamehousecr.ddns.net/grafana/` | prometheus (datasource) | Expuesto vía `proxy` (red `isp-monitor-net`, `external: true`); subpath vía `GF_SERVER_ROOT_URL`/`GF_SERVER_SERVE_FROM_SUB_PATH` |
 | jellyfin | 8096:8096 | `kamehousecr.ddns.net/jellyfin/` | — | — |
 | jellyfin / sonarr | 8989:8989 | PENDIENTE | transmission (embebido) | — |
 | jellyfin / radarr | 7878:7878 | PENDIENTE | transmission (embebido) | — |
@@ -30,7 +30,7 @@ referencia — no los lee Portainer automáticamente.
 | nextcloud / nextclouddb (mariadb) | sin puerto host | — | — | — |
 | nextcloud / nextcloudredis | sin puerto host | — | — | — |
 | portainer | 8000:8000, 9443:9443 | `kamehousecr.ddns.net/portainer/` | — | Dueño de la red externa `portainer_portainer-net` que consume `proxy` |
-| proxy (swag) | 80:80, 443:443 | `kamehousecr.ddns.net` + `photoskamehousecr.ddns.net` (`EXTRA_DOMAINS`, mismo cert) | portainer, nextcloud, navidrome, jellyfin, immich-app (consume la red externa de cada uno) | Único servicio con `networks.external: true`, hacia 5 redes versionadas (ver sección de redes abajo) |
+| proxy (swag) | 80:80, 443:443 | `kamehousecr.ddns.net` + `photoskamehousecr.ddns.net` (`EXTRA_DOMAINS`, mismo cert) | portainer, nextcloud, navidrome, jellyfin, immich-app, isp-monitor (consume la red externa de cada uno) | Único servicio con `networks.external: true`, hacia 6 redes versionadas (ver sección de redes abajo) |
 | watchtower | sin puertos | — | — | Monitorea todos los contenedores con label `com.centurylinklabs.watchtower.enable=true` |
 
 ## Dominios / subdominios
@@ -39,7 +39,8 @@ referencia — no los lee Portainer automáticamente.
 `default.conf` que corre en el servidor — de ahí salen los dominios
 confirmados de la tabla de arriba: el dominio base `kamehousecr.ddns.net`
 (método de subcarpeta vía `location` blocks: portainer, jellyfin,
-navidrome, nextcloud, transmission) y `photoskamehousecr.ddns.net` (server
+navidrome, nextcloud, transmission, grafana, prometheus) y
+`photoskamehousecr.ddns.net` (server
 block propio en el mismo archivo, para `immich-app`). El resto de
 servicios sigue `PENDIENTE` porque no aparecen en ese archivo (no se
 exponen públicamente vía este proxy, o su exposición vive en otro lado no
@@ -56,20 +57,23 @@ que el dominio base vía `EXTRA_DOMAINS` en `proxy/docker-compose.yml`.
 
 ## Redes Docker relevantes
 
-- `proxy` consume 5 redes externas, cada una creada por su stack dueño y
+- `proxy` consume 6 redes externas, cada una creada por su stack dueño y
   declarada como `external: true` en `proxy/docker-compose.yml`:
   `portainer_portainer-net` (dueño: `portainer`), `nextcloud_nextcloud-net`
   (dueño: `nextcloud`), `navidrome_navidrome-net` (dueño: `navidrome`),
-  `jellyfin_jellyfin-net` (dueño: `jellyfin`) e `immich_immichapp-net`
-  (dueño: `immich-app`). Al ser `external`, Compose reconecta el
-  contenedor `proxy` a las 5 automáticamente en cada redeploy del stack
-  `proxy` — ya no hace falta unirlas a mano vía la UI de Portainer (así
-  era antes; ver historial de este archivo).
-- **Orden de despliegue inicial**: `immich_immichapp-net` solo existe
-  después de que `immich-app` se despliega con `immich-server` unido a
-  `immichapp-net`. Si se redespliega `proxy` antes de eso, el deploy falla
-  porque Compose no encuentra la red externa — desplegar siempre
-  `immich-app` primero.
+  `jellyfin_jellyfin-net` (dueño: `jellyfin`), `immich_immichapp-net`
+  (dueño: `immich-app`) e `isp-monitor_isp-monitor-net` (dueño:
+  `isp-monitor`, solo la usan `grafana` y `prometheus` — `blackbox-exporter`
+  queda fuera). Al ser `external`, Compose reconecta el contenedor `proxy`
+  a las 6 automáticamente en cada redeploy del stack `proxy` — ya no hace
+  falta unirlas a mano vía la UI de Portainer (así era antes; ver historial
+  de este archivo).
+- **Orden de despliegue inicial**: `immich_immichapp-net` e
+  `isp-monitor_isp-monitor-net` solo existen después de que
+  `immich-app` e `isp-monitor` respectivamente se despliegan con sus
+  servicios unidos a esas redes. Si se redespliega `proxy` antes de eso, el
+  deploy falla porque Compose no encuentra la red externa — desplegar
+  siempre el stack dueño primero.
 
 ## Conflictos y pendientes conocidos
 

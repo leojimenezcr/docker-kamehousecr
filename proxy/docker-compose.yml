@@ -32,14 +32,15 @@ services:
       # La comunicacion con los contenedores es por
       # redes individuales, para proporcionar aislamiento.
       # Se declaran como "external" porque las crea el stack dueño de cada
-      # app (portainer, nextcloud, navidrome, jellyfin) — asi Compose las
-      # reconecta solas en cada redeploy del proxy, sin pasos manuales en
-      # la UI de Portainer.
+      # app (portainer, nextcloud, navidrome, jellyfin, isp-monitor) — asi
+      # Compose las reconecta solas en cada redeploy del proxy, sin pasos
+      # manuales en la UI de Portainer.
       - portainer_portainer-net
       - nextcloud_nextcloud-net
       - navidrome_navidrome-net
       - jellyfin_jellyfin-net
       - immich_immichapp-net
+      - isp-monitor_isp-monitor-net
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
     restart: always
@@ -55,4 +56,6 @@ networks:
   jellyfin_jellyfin-net:
     external: true
   immich_immichapp-net:
+    external: true
+  isp-monitor_isp-monitor-net:
     external: true
