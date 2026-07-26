@@ -89,6 +89,27 @@ Si se edita `proxy/conf.d/default.conf`, hay que sincronizarlo al servidor
 con `scripts/sync-proxy-conf.sh --to-host --apply` (reinicia el proxy) para
 que el cambio quede activo — ver `proxy/conf.d/README.md`.
 
+### ⚠ Consola/exec de contenedores: `proxy_pass` con variables ignora la URI
+
+La consola interactiva de un contenedor (botón "Console") abre un WebSocket
+a `wss://kamehousecr.ddns.net/portainer/api/websocket/exec?...` — a
+diferencia del webhook, esta sí respeta el prefijo `/portainer/`. El bug acá
+fue otro: el `location ^~ /portainer/api/websocket/` intentaba quitar el
+prefijo pegando una URI al final de `proxy_pass`
+(`proxy_pass http://$upstream_app:$upstream_port/api/websocket/;`), pero
+**nginx no aplica el reemplazo automático del prefijo de location cuando
+`proxy_pass` usa variables** — reenvía la URI tal cual la mandó el cliente,
+con `/portainer/` incluido. Portainer sí recibía la conexión (el `Server:
+nginx` de la respuesta con `Content-Length: 19` es literalmente el `404
+page not found` que devuelve su propio router de Go), pero en una ruta que
+no reconoce.
+
+El fix es el mismo patrón que ya usa el `location ^~ /portainer/` general:
+`rewrite ^/portainer/(.*)$ /$1 break;` antes de un `proxy_pass` sin URI. Si
+en el futuro otra ruta de Portainer devuelve "404 page not found" (el texto
+literal de Go, no la página 404 de nginx) detrás de `/portainer/`,
+sospechar primero de este mismo patrón antes que de autenticación o red.
+
 ### Disparar el webhook desde este repo
 
 1. Copiar `scripts/webhooks.env.example` a `scripts/webhooks.env`
