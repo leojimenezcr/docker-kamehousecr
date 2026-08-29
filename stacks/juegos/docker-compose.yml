@@ -1,0 +1,22 @@
+# Arcade de minijuegos educativos de ciberseguridad ("Reto de
+# Ciberseguridad", proyecto juegoscyberseguridad) — sitio 100% estático
+# (HTML/CSS/JS con ES modules, sin backend ni build step). nginx sirve
+# BASE_DIR tal cual como raíz del sitio.
+services:
+  juegos:
+    image: nginx:alpine
+    container_name: juegos
+    networks:
+      - juegos-net
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: ${BASE_DIR}
+        target: /usr/share/nginx/html
+        read_only: true
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+networks:
+  juegos-net:
+    attachable: true

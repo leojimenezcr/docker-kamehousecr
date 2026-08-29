@@ -18,33 +18,34 @@ internet a través de este proxy.
 | `${BASE_DIR}` | `/config` | Config completa de SWAG (certificados, nginx interno, etc.) — se monta la carpeta raíz completa, sin subcarpeta, porque todo vive plano ahí |
 
 ## Redes
-Único servicio del repo con `networks.external: true` — consume 7 redes
+Único servicio del repo con `networks.external: true` — consume 8 redes
 creadas por sus stacks dueños: `portainer_portainer-net` (`stacks/portainer`),
 `nextcloud_nextcloud-net` (`stacks/nextcloud`), `navidrome_navidrome-net`
 (`stacks/navidrome`), `jellyfin_jellyfin-net` (`stacks/jellyfin`),
 `immich_immichapp-net` (`stacks/immich-app`),
 `isp-monitor_isp-monitor-net` (`stacks/isp-monitor`, solo la usan
-`grafana` y `prometheus`) y `n8n_n8n-net` (`stacks/n8n`). Al declararlas
-como `external: true` en vez de unirlas a mano vía la UI de Portainer,
-Compose las reconecta solas en cada redeploy del stack `proxy` — no hace
-falta ningún paso manual después de recrearlo.
+`grafana` y `prometheus`), `n8n_n8n-net` (`stacks/n8n`) y
+`juegos_juegos-net` (`stacks/juegos`). Al declararlas como
+`external: true` en vez de unirlas a mano vía la UI de Portainer, Compose
+las reconecta solas en cada redeploy del stack `proxy` — no hace falta
+ningún paso manual después de recrearlo.
 
 **Orden importante al desplegar por primera vez**: `immich_immichapp-net`,
-`isp-monitor_isp-monitor-net` y `n8n_n8n-net` no existen hasta que
-`immich-app`, `isp-monitor` y `n8n` respectivamente se despliegan con sus
-servicios unidos a esas redes — si se redespliega `proxy` antes de eso, el
-deploy falla porque Compose no encuentra la red externa. Desplegar siempre
-el stack dueño primero.
+`isp-monitor_isp-monitor-net`, `n8n_n8n-net` y `juegos_juegos-net` no
+existen hasta que `immich-app`, `isp-monitor`, `n8n` y `juegos`
+respectivamente se despliegan con sus servicios unidos a esas redes — si
+se redespliega `proxy` antes de eso, el deploy falla porque Compose no
+encuentra la red externa. Desplegar siempre el stack dueño primero.
 
 ## Depende de
 `stacks/portainer`, `stacks/nextcloud`, `stacks/navidrome`,
-`stacks/jellyfin`, `stacks/immich-app`, `stacks/isp-monitor` y `stacks/n8n`
-(consume la red externa de cada uno).
+`stacks/jellyfin`, `stacks/immich-app`, `stacks/isp-monitor`, `stacks/n8n`
+y `stacks/juegos` (consume la red externa de cada uno).
 
 ## Dominios servidos
 - `kamehousecr.ddns.net` (dominio base, `URL`): portainer, jellyfin,
-  navidrome, nextcloud, transmission, grafana, prometheus — método de
-  subcarpeta, ver `conf.d/default.conf`.
+  navidrome, nextcloud, transmission, grafana, prometheus, juegos — método
+  de subcarpeta, ver `conf.d/default.conf`.
 - `photoskamehousecr.ddns.net` (`EXTRA_DOMAINS`, mismo certificado, SAN
   adicional): immich-app, dominio propio en vez de subcarpeta porque
   Immich no soporta bien exponerse bajo un subpath (rutas de API/websocket

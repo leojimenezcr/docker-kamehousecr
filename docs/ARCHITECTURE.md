@@ -25,6 +25,7 @@ referencia — no los lee Portainer automáticamente.
 | jellyfin / jackett | 9117:9117 | PENDIENTE | — | — |
 | jellyfin / transmission (embebido) | 9091:9091, 51413:51413(+udp) | `kamehousecr.ddns.net/transmission` | — | — |
 | jellyfin / tinymediamanager | 4000:4000 | PENDIENTE | — | — |
+| juegos | sin puerto host | `kamehousecr.ddns.net/juegos/` | — | Sitio estático (arcade "Reto de Ciberseguridad", proyecto `juegoscyberseguridad`, repo aparte no versionado acá); nginx sirve `BASE_DIR` tal cual como raíz. Expuesto vía `proxy` (red `juegos-net`, versionada como `external: true`); método de subcarpeta porque el sitio solo usa rutas relativas |
 | n8n / n8n | sin puerto host | `n8nkamehousecr.ddns.net` (dominio propio) | sandbox-api (AI Assistant) | Expuesto vía `proxy` (red `n8n-net`, versionada como `external: true`); dominio propio en vez de subcarpeta porque la doc oficial de n8n no confirma soporte de subpath. AI Assistant apunta al modelo local de `ollama` (red `ollama_ollama-net`, consumida desde este stack) |
 | n8n / sandbox-certs | sin puerto host | — | — | Init container, corre una vez y termina; genera certificados mTLS del sandbox |
 | n8n / sandbox-api | sin puerto host | — | sandbox-certs | Control plane del sandbox de ejecución de código del AI Assistant; sin watchtower ni `env_file` completo (componente sensible) |
@@ -36,7 +37,7 @@ referencia — no los lee Portainer automáticamente.
 | nextcloud / nextcloudredis | sin puerto host | — | — | — |
 | ollama | sin puerto host | — (interno, no expuesto vía proxy) | — | Servidor de modelos LLM locales; solo lo consume `n8n` (AI Assistant) vía `ollama-net`. Inferencia por CPU (host sin GPU dedicada) |
 | portainer | 8000:8000, 9443:9443 | `kamehousecr.ddns.net/portainer/` | — | Dueño de la red externa `portainer_portainer-net` que consume `proxy` |
-| proxy (swag) | 80:80, 443:443 | `kamehousecr.ddns.net` + `photoskamehousecr.ddns.net` + `n8nkamehousecr.ddns.net` (`EXTRA_DOMAINS`, mismo cert) | portainer, nextcloud, navidrome, jellyfin, immich-app, isp-monitor, n8n (consume la red externa de cada uno) | Único servicio con `networks.external: true`, hacia 7 redes versionadas (ver sección de redes abajo) |
+| proxy (swag) | 80:80, 443:443 | `kamehousecr.ddns.net` + `photoskamehousecr.ddns.net` + `n8nkamehousecr.ddns.net` (`EXTRA_DOMAINS`, mismo cert) | portainer, nextcloud, navidrome, jellyfin, immich-app, isp-monitor, n8n, juegos (consume la red externa de cada uno) | Único servicio con `networks.external: true`, hacia 8 redes versionadas (ver sección de redes abajo) |
 | watchtower | sin puertos | — | — | Monitorea todos los contenedores con label `com.centurylinklabs.watchtower.enable=true` |
 
 ## Dominios / subdominios
@@ -45,7 +46,7 @@ referencia — no los lee Portainer automáticamente.
 `default.conf` que corre en el servidor — de ahí salen los dominios
 confirmados de la tabla de arriba: el dominio base `kamehousecr.ddns.net`
 (método de subcarpeta vía `location` blocks: portainer, jellyfin,
-navidrome, nextcloud, transmission, grafana, prometheus),
+navidrome, nextcloud, transmission, grafana, prometheus, juegos),
 `photoskamehousecr.ddns.net` (server block propio en el mismo archivo, para
 `immich-app`) y `n8nkamehousecr.ddns.net` (server block propio, para
 `n8n`). El resto de servicios sigue `PENDIENTE` porque no aparecen en ese
@@ -65,27 +66,29 @@ el dominio base vía `EXTRA_DOMAINS` en `proxy/docker-compose.yml`.
 
 ## Redes Docker relevantes
 
-- `proxy` consume 7 redes externas, cada una creada por su stack dueño y
+- `proxy` consume 8 redes externas, cada una creada por su stack dueño y
   declarada como `external: true` en `proxy/docker-compose.yml`:
   `portainer_portainer-net` (dueño: `portainer`), `nextcloud_nextcloud-net`
   (dueño: `nextcloud`), `navidrome_navidrome-net` (dueño: `navidrome`),
   `jellyfin_jellyfin-net` (dueño: `jellyfin`), `immich_immichapp-net`
   (dueño: `immich-app`), `isp-monitor_isp-monitor-net` (dueño:
   `isp-monitor`, solo la usan `grafana` y `prometheus` — `blackbox-exporter`
-  queda fuera) y `n8n_n8n-net` (dueño: `n8n`). Al ser `external`, Compose
-  reconecta el contenedor `proxy` a las 7 automáticamente en cada redeploy
-  del stack `proxy` — ya no hace falta unirlas a mano vía la UI de
-  Portainer (así era antes; ver historial de este archivo).
+  queda fuera), `n8n_n8n-net` (dueño: `n8n`) y `juegos_juegos-net` (dueño:
+  `juegos`). Al ser `external`, Compose reconecta el contenedor `proxy` a
+  las 8 automáticamente en cada redeploy del stack `proxy` — ya no hace
+  falta unirlas a mano vía la UI de Portainer (así era antes; ver historial
+  de este archivo).
 - Aparte, `n8n` consume a su vez `ollama_ollama-net` (dueño: `ollama`) para
   llegar al AI Assistant al modelo local — esa red **no** la toca `proxy`,
   es privada entre esos dos stacks (`ollama` nunca se expone públicamente).
 - **Orden de despliegue inicial**: `immich_immichapp-net`,
-  `isp-monitor_isp-monitor-net` y `n8n_n8n-net` solo existen después de que
-  `immich-app`, `isp-monitor` y `n8n` respectivamente se despliegan con sus
-  servicios unidos a esas redes. Si se redespliega `proxy` antes de eso, el
-  deploy falla porque Compose no encuentra la red externa — desplegar
-  siempre el stack dueño primero. A su vez, `n8n` necesita que `ollama` ya
-  esté desplegado (para `ollama_ollama-net`) antes de desplegarse él mismo.
+  `isp-monitor_isp-monitor-net`, `n8n_n8n-net` y `juegos_juegos-net` solo
+  existen después de que `immich-app`, `isp-monitor`, `n8n` y `juegos`
+  respectivamente se despliegan con sus servicios unidos a esas redes. Si
+  se redespliega `proxy` antes de eso, el deploy falla porque Compose no
+  encuentra la red externa — desplegar siempre el stack dueño primero. A su
+  vez, `n8n` necesita que `ollama` ya esté desplegado (para
+  `ollama_ollama-net`) antes de desplegarse él mismo.
 
 ## Conflictos y pendientes conocidos
 

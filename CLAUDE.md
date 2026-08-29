@@ -27,7 +27,8 @@ docker-kamehousecr/
 Cada carpeta bajo `stacks/` (y `proxy/` como excepción top-level) es
 autocontenida: `docker-compose.yml` + `.env.example` + `README.md`. Los
 stacks actuales: `duplicati`, `immich-app`, `isp-monitor`, `jellyfin`,
-`navidrome`, `nextcloud`, `portainer`, `watchtower`, más `proxy`. Ver
+`juegos`, `n8n`, `navidrome`, `nextcloud`, `ollama`, `portainer`,
+`watchtower`, más `proxy`. Ver
 `docs/ARCHITECTURE.md` para el mapa completo de servicios, puertos y
 dependencias, y `docs/PORTAINER-SETUP.md` para cómo se configura cada
 stack en la UI de Portainer.
