@@ -1,0 +1,172 @@
+name: n8n
+
+# Basado en la guia oficial de docker-compose de n8n
+# (https://docs.n8n.io/deploy/host-n8n/install-options/install-using-docker-compose),
+# adaptado a las convenciones de este repo:
+# - Sin puertos de host: solo el proxy expone puertos, n8n sale via
+#   n8n-net + el stack `proxy` (ver docs/ARCHITECTURE.md).
+# - sandbox-api y sandbox-runner-1 NO usan env_file (solo n8n lo usa) y no
+#   llevan watchtower: son el componente sensible en seguridad de este
+#   stack (sandbox-runner-1 corre privileged/Docker-in-Docker) — la propia
+#   guia oficial ("Security checklist") pide tratarlos con cuidado aparte y
+#   no exponer secretos de mas. Actualizarlos a mano, revisando el
+#   changelog de n8n-sandbox-service antes de subir de version.
+# - El AI Assistant apunta al modelo local del stack `ollama` en vez de a
+#   un proveedor en la nube (OpenAI/Anthropic/OpenRouter).
+volumes:
+  sandbox-tls:
+
+services:
+  # Genera los certificados mTLS que sandbox-api y sandbox-runner-1 usan
+  # para hablarse entre si. Corre una vez y termina (no es un servicio
+  # persistente) — no lleva watchtower ni restart.
+  sandbox-certs:
+    image: ghcr.io/n8n-io/n8n-sandbox-service-api:latest
+    container_name: n8n-sandbox-certs
+    user: '0:0'
+    entrypoint: ['sh', '-c']
+    command:
+      - >
+        bootstrap-mtls.sh --out-dir /tls --api-san sandbox-api
+        --control-san-prefix sandbox-runner &&
+        chown -R sandbox-api:sandbox-api /tls/api
+    environment:
+      NUM_RUNNERS: '1'
+    volumes:
+      - sandbox-tls:/tls
+    networks:
+      - n8n-net
+
+  # Control plane que n8n consulta cuando el AI Assistant necesita ejecutar
+  # codigo. Recibe solo las variables que necesita, explicitas (no
+  # env_file completo) — ver comentario arriba.
+  sandbox-api:
+    image: ghcr.io/n8n-io/n8n-sandbox-service-api:latest
+    container_name: n8n-sandbox-api
+    depends_on:
+      sandbox-certs:
+        condition: service_completed_successfully
+    environment:
+      SANDBOX_API_KEYS: ${SANDBOX_API_KEYS}
+      SANDBOX_API_RUNNER_REGISTRATION_TOKEN: ${SANDBOX_API_RUNNER_REGISTRATION_TOKEN}
+      SANDBOX_API_RUNNER_API_KEY: ${SANDBOX_API_RUNNER_API_KEY}
+      SANDBOX_API_GRPC_TLS_CERT_FILE: /tls/api/grpc-server.crt
+      SANDBOX_API_GRPC_TLS_KEY_FILE: /tls/api/grpc-server.key
+      SANDBOX_API_GRPC_TLS_CLIENT_CA_FILE: /tls/api/ca.crt
+      SANDBOX_API_RUNNER_CONTROL_GRPC_TLS_CA_FILE: /tls/api/ca.crt
+      SANDBOX_API_RUNNER_CONTROL_GRPC_TLS_CERT_FILE: /tls/api/control-grpc-api-client.crt
+      SANDBOX_API_RUNNER_CONTROL_GRPC_TLS_KEY_FILE: /tls/api/control-grpc-api-client.key
+      SANDBOX_API_RUNNER_CONTROL_GRPC_TLS_SERVER_NAME: sandbox-runner-1
+    volumes:
+      - sandbox-tls:/tls:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - n8n-net
+    restart: unless-stopped
+
+  # Ejecuta el codigo del AI Assistant en contenedores Docker-in-Docker.
+  # privileged: true — equivalente a root en el host. Nunca se une a una
+  # red que llegue al proxy.
+  sandbox-runner-1:
+    image: ghcr.io/n8n-io/n8n-sandbox-service-runner-dind:latest
+    container_name: n8n-sandbox-runner-1
+    privileged: true
+    depends_on:
+      sandbox-api:
+        condition: service_healthy
+    environment:
+      SANDBOX_RUNNER_API_KEYS: ${SANDBOX_API_RUNNER_API_KEY}
+      SANDBOX_RUNNER_REGISTRATION_TOKEN: ${SANDBOX_API_RUNNER_REGISTRATION_TOKEN}
+      SANDBOX_RUNNER_API_GRPC_ADDR: sandbox-api:9090
+      SANDBOX_RUNNER_HTTP_BASE_URL: http://sandbox-runner-1:8080
+      SANDBOX_RUNNER_CONTROL_GRPC_LISTEN_ADDR: ':9091'
+      SANDBOX_RUNNER_CONTROL_GRPC_ADVERTISE_ADDR: sandbox-runner-1:9091
+      SANDBOX_RUNNER_ID: runner-1
+      SANDBOX_RUNNER_DOCKER_SANDBOX_IMAGE: ghcr.io/n8n-io/n8n-sandbox-service-sandbox:latest
+      SANDBOX_RUNNER_REGISTRATION_GRPC_CA_FILE: /tls/runner/ca.crt
+      SANDBOX_RUNNER_REGISTRATION_GRPC_CERT_FILE: /tls/runner/grpc-client.crt
+      SANDBOX_RUNNER_REGISTRATION_GRPC_KEY_FILE: /tls/runner/grpc-client.key
+      SANDBOX_RUNNER_REGISTRATION_GRPC_SERVER_NAME: sandbox-api
+      SANDBOX_RUNNER_CONTROL_GRPC_TLS_CERT_FILE: /tls/runner/control-grpc-server.crt
+      SANDBOX_RUNNER_CONTROL_GRPC_TLS_KEY_FILE: /tls/runner/control-grpc-server.key
+      SANDBOX_RUNNER_CONTROL_GRPC_TLS_CLIENT_CA_FILE: /tls/runner/ca.crt
+    volumes:
+      - sandbox-tls:/tls:ro
+    networks:
+      - n8n-net
+    restart: unless-stopped
+
+  # Backend de busqueda web que usa el AI Assistant.
+  searxng:
+    image: ghcr.io/searxng/searxng:latest
+    container_name: n8n-searxng
+    environment:
+      SEARXNG_SECRET: ${SEARXNG_SECRET}
+    volumes:
+      - ./searxng-settings.yml:/etc/searxng/settings.yml:ro
+    networks:
+      - n8n-net
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    restart: unless-stopped
+
+  n8n:
+    image: docker.io/n8nio/n8n
+    container_name: n8n
+    depends_on:
+      sandbox-api:
+        condition: service_healthy
+    env_file:
+      - ../../stack.env
+    environment:
+      GENERIC_TIMEZONE: America/Costa_Rica
+      TZ: America/Costa_Rica
+
+      # Detras del proxy (SWAG), dominio propio en vez de subcarpeta:
+      # n8n, igual que immich-app, no soporta bien correr bajo un subpath
+      # (rutas del editor/webhooks asumen raiz) — ver docs/ARCHITECTURE.md.
+      # Dominio hardcodeado (no variable), mismo criterio que grafana/prometheus.
+      N8N_HOST: n8nkamehousecr.ddns.net
+      N8N_PROTOCOL: https
+      N8N_PORT: 5678
+      N8N_PROXY_HOPS: 1
+      WEBHOOK_URL: https://n8nkamehousecr.ddns.net/
+
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
+
+      # AI Assistant apuntando al modelo local del stack `ollama` en vez de
+      # a un proveedor en la nube.
+      N8N_ENABLED_MODULES: instance-ai
+      N8N_INSTANCE_AI_SANDBOX_ENABLED: 'true'
+      N8N_INSTANCE_AI_SANDBOX_IMAGE: ghcr.io/n8n-io/n8n-sandbox-service-sandbox:latest
+      N8N_INSTANCE_AI_SANDBOX_API_URL: http://sandbox-api:8080
+      N8N_INSTANCE_AI_SANDBOX_API_KEY: ${N8N_INSTANCE_AI_SANDBOX_API_KEY}
+      N8N_INSTANCE_AI_SEARXNG_URL: http://searxng:8080
+      # Ollama expone un endpoint compatible con OpenAI en /v1 — el prefijo
+      # "openai/" es la mejor interpretacion posible de la doc oficial de
+      # n8n (no confirma explicito el formato para endpoints locales via
+      # N8N_INSTANCE_AI_MODEL_URL). VERIFICAR en la UI de n8n al primer
+      # despliegue y ajustar si no conecta.
+      N8N_INSTANCE_AI_MODEL: openai/${OLLAMA_MODEL}
+      N8N_INSTANCE_AI_MODEL_URL: http://ollama:11434/v1
+    volumes:
+      - ${BASE_DIR}/n8n:/home/node/.n8n
+    networks:
+      - n8n-net
+      - ollama_ollama-net
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    restart: unless-stopped
+
+networks:
+  n8n-net:
+    attachable: true
+  # Red del stack `ollama` (ver stacks/ollama/docker-compose.yml) — external
+  # porque la crea y es dueño ese otro stack, hay que desplegarlo primero.
+  ollama_ollama-net:
+    external: true

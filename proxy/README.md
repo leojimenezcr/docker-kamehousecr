@@ -18,28 +18,28 @@ internet a través de este proxy.
 | `${BASE_DIR}` | `/config` | Config completa de SWAG (certificados, nginx interno, etc.) — se monta la carpeta raíz completa, sin subcarpeta, porque todo vive plano ahí |
 
 ## Redes
-Único servicio del repo con `networks.external: true` — consume 6 redes
+Único servicio del repo con `networks.external: true` — consume 7 redes
 creadas por sus stacks dueños: `portainer_portainer-net` (`stacks/portainer`),
 `nextcloud_nextcloud-net` (`stacks/nextcloud`), `navidrome_navidrome-net`
 (`stacks/navidrome`), `jellyfin_jellyfin-net` (`stacks/jellyfin`),
-`immich_immichapp-net` (`stacks/immich-app`) e
+`immich_immichapp-net` (`stacks/immich-app`),
 `isp-monitor_isp-monitor-net` (`stacks/isp-monitor`, solo la usan
-`grafana` y `prometheus`). Al declararlas como `external: true` en vez de
-unirlas a mano vía la UI de Portainer, Compose las reconecta solas en cada
-redeploy del stack `proxy` — no hace falta ningún paso manual después de
-recrearlo.
+`grafana` y `prometheus`) y `n8n_n8n-net` (`stacks/n8n`). Al declararlas
+como `external: true` en vez de unirlas a mano vía la UI de Portainer,
+Compose las reconecta solas en cada redeploy del stack `proxy` — no hace
+falta ningún paso manual después de recrearlo.
 
-**Orden importante al desplegar por primera vez**: `immich_immichapp-net`
-e `isp-monitor_isp-monitor-net` no existen hasta que `immich-app` e
-`isp-monitor` respectivamente se despliegan con sus servicios unidos a esas
-redes — si se redespliega `proxy` antes de eso, el deploy falla porque
-Compose no encuentra la red externa. Desplegar siempre el stack dueño
-primero.
+**Orden importante al desplegar por primera vez**: `immich_immichapp-net`,
+`isp-monitor_isp-monitor-net` y `n8n_n8n-net` no existen hasta que
+`immich-app`, `isp-monitor` y `n8n` respectivamente se despliegan con sus
+servicios unidos a esas redes — si se redespliega `proxy` antes de eso, el
+deploy falla porque Compose no encuentra la red externa. Desplegar siempre
+el stack dueño primero.
 
 ## Depende de
 `stacks/portainer`, `stacks/nextcloud`, `stacks/navidrome`,
-`stacks/jellyfin`, `stacks/immich-app` y `stacks/isp-monitor` (consume la
-red externa de cada uno).
+`stacks/jellyfin`, `stacks/immich-app`, `stacks/isp-monitor` y `stacks/n8n`
+(consume la red externa de cada uno).
 
 ## Dominios servidos
 - `kamehousecr.ddns.net` (dominio base, `URL`): portainer, jellyfin,
@@ -50,6 +50,10 @@ red externa de cada uno).
   Immich no soporta bien exponerse bajo un subpath (rutas de API/websocket
   asumen raíz — ver discusión `immich-app/immich#23688`) y el plan
   gratuito de noip.com no permite subdominios reales. Server block
+  correspondiente en el mismo `conf.d/default.conf`.
+- `n8nkamehousecr.ddns.net` (`EXTRA_DOMAINS`, mismo certificado, SAN
+  adicional): stack `n8n`, mismo motivo que immich-app — la doc oficial de
+  n8n no confirma soporte de subpath/subcarpeta. Server block
   correspondiente en el mismo `conf.d/default.conf`.
 
 `blackbox-exporter` (parte de `isp-monitor`) no se expone vía proxy: su

@@ -25,12 +25,18 @@ referencia — no los lee Portainer automáticamente.
 | jellyfin / jackett | 9117:9117 | PENDIENTE | — | — |
 | jellyfin / transmission (embebido) | 9091:9091, 51413:51413(+udp) | `kamehousecr.ddns.net/transmission` | — | — |
 | jellyfin / tinymediamanager | 4000:4000 | PENDIENTE | — | — |
+| n8n / n8n | sin puerto host | `n8nkamehousecr.ddns.net` (dominio propio) | sandbox-api (AI Assistant) | Expuesto vía `proxy` (red `n8n-net`, versionada como `external: true`); dominio propio en vez de subcarpeta porque la doc oficial de n8n no confirma soporte de subpath. AI Assistant apunta al modelo local de `ollama` (red `ollama_ollama-net`, consumida desde este stack) |
+| n8n / sandbox-certs | sin puerto host | — | — | Init container, corre una vez y termina; genera certificados mTLS del sandbox |
+| n8n / sandbox-api | sin puerto host | — | sandbox-certs | Control plane del sandbox de ejecución de código del AI Assistant; sin watchtower ni `env_file` completo (componente sensible) |
+| n8n / sandbox-runner-1 | sin puerto host | — | sandbox-api | `privileged: true` (Docker-in-Docker); sin watchtower, actualización manual |
+| n8n / searxng | sin puerto host | — | — | Backend de búsqueda web del AI Assistant |
 | navidrome | 4533:4533 | `kamehousecr.ddns.net/navidrome/` | — | — |
 | nextcloud | sin puerto host | `kamehousecr.ddns.net/` (location raíz) | nextclouddb, nextcloudredis | Expuesto vía `proxy` (red `nextcloud-net`, versionada como `external: true` en `proxy/docker-compose.yml`) |
 | nextcloud / nextclouddb (mariadb) | sin puerto host | — | — | — |
 | nextcloud / nextcloudredis | sin puerto host | — | — | — |
+| ollama | sin puerto host | — (interno, no expuesto vía proxy) | — | Servidor de modelos LLM locales; solo lo consume `n8n` (AI Assistant) vía `ollama-net`. Inferencia por CPU (host sin GPU dedicada) |
 | portainer | 8000:8000, 9443:9443 | `kamehousecr.ddns.net/portainer/` | — | Dueño de la red externa `portainer_portainer-net` que consume `proxy` |
-| proxy (swag) | 80:80, 443:443 | `kamehousecr.ddns.net` + `photoskamehousecr.ddns.net` (`EXTRA_DOMAINS`, mismo cert) | portainer, nextcloud, navidrome, jellyfin, immich-app, isp-monitor (consume la red externa de cada uno) | Único servicio con `networks.external: true`, hacia 6 redes versionadas (ver sección de redes abajo) |
+| proxy (swag) | 80:80, 443:443 | `kamehousecr.ddns.net` + `photoskamehousecr.ddns.net` + `n8nkamehousecr.ddns.net` (`EXTRA_DOMAINS`, mismo cert) | portainer, nextcloud, navidrome, jellyfin, immich-app, isp-monitor, n8n (consume la red externa de cada uno) | Único servicio con `networks.external: true`, hacia 7 redes versionadas (ver sección de redes abajo) |
 | watchtower | sin puertos | — | — | Monitorea todos los contenedores con label `com.centurylinklabs.watchtower.enable=true` |
 
 ## Dominios / subdominios
@@ -39,41 +45,47 @@ referencia — no los lee Portainer automáticamente.
 `default.conf` que corre en el servidor — de ahí salen los dominios
 confirmados de la tabla de arriba: el dominio base `kamehousecr.ddns.net`
 (método de subcarpeta vía `location` blocks: portainer, jellyfin,
-navidrome, nextcloud, transmission, grafana, prometheus) y
-`photoskamehousecr.ddns.net` (server
-block propio en el mismo archivo, para `immich-app`). El resto de
-servicios sigue `PENDIENTE` porque no aparecen en ese archivo (no se
-exponen públicamente vía este proxy, o su exposición vive en otro lado no
-versionado todavía). Ver `../proxy/README.md` para el detalle de qué tan
-al día está ese snapshot respecto al contenedor real.
+navidrome, nextcloud, transmission, grafana, prometheus),
+`photoskamehousecr.ddns.net` (server block propio en el mismo archivo, para
+`immich-app`) y `n8nkamehousecr.ddns.net` (server block propio, para
+`n8n`). El resto de servicios sigue `PENDIENTE` porque no aparecen en ese
+archivo (no se exponen públicamente vía este proxy, o su exposición vive
+en otro lado no versionado todavía). Ver `../proxy/README.md` para el
+detalle de qué tan al día está ese snapshot respecto al contenedor real.
 
-`photoskamehousecr.ddns.net` es un dominio DDNS separado (no un subdominio
-real de `kamehousecr.ddns.net` — el plan gratuito de noip.com no permite
-subdominios), apuntando a la misma IP pública. Se eligió dominio propio en
-vez de subcarpeta (`/immich`) porque Immich no soporta bien reverse proxy
-bajo un subpath: rutas de API/websocket asumen que corren en la raíz (ver
-`immich-app/immich#23688`). Comparte el mismo certificado Let's Encrypt
-que el dominio base vía `EXTRA_DOMAINS` en `proxy/docker-compose.yml`.
+`photoskamehousecr.ddns.net` y `n8nkamehousecr.ddns.net` son dominios DDNS
+separados (no subdominios reales de `kamehousecr.ddns.net` — el plan
+gratuito de noip.com no permite subdominios), apuntando a la misma IP
+pública. Se eligió dominio propio en vez de subcarpeta en ambos casos
+porque ninguno de los dos servicios soporta bien reverse proxy bajo un
+subpath: Immich asume rutas de API/websocket en la raíz (ver
+`immich-app/immich#23688`), y la doc oficial de n8n no confirma soporte de
+subpath/subcarpeta. Ambos comparten el mismo certificado Let's Encrypt que
+el dominio base vía `EXTRA_DOMAINS` en `proxy/docker-compose.yml`.
 
 ## Redes Docker relevantes
 
-- `proxy` consume 6 redes externas, cada una creada por su stack dueño y
+- `proxy` consume 7 redes externas, cada una creada por su stack dueño y
   declarada como `external: true` en `proxy/docker-compose.yml`:
   `portainer_portainer-net` (dueño: `portainer`), `nextcloud_nextcloud-net`
   (dueño: `nextcloud`), `navidrome_navidrome-net` (dueño: `navidrome`),
   `jellyfin_jellyfin-net` (dueño: `jellyfin`), `immich_immichapp-net`
-  (dueño: `immich-app`) e `isp-monitor_isp-monitor-net` (dueño:
+  (dueño: `immich-app`), `isp-monitor_isp-monitor-net` (dueño:
   `isp-monitor`, solo la usan `grafana` y `prometheus` — `blackbox-exporter`
-  queda fuera). Al ser `external`, Compose reconecta el contenedor `proxy`
-  a las 6 automáticamente en cada redeploy del stack `proxy` — ya no hace
-  falta unirlas a mano vía la UI de Portainer (así era antes; ver historial
-  de este archivo).
-- **Orden de despliegue inicial**: `immich_immichapp-net` e
-  `isp-monitor_isp-monitor-net` solo existen después de que
-  `immich-app` e `isp-monitor` respectivamente se despliegan con sus
+  queda fuera) y `n8n_n8n-net` (dueño: `n8n`). Al ser `external`, Compose
+  reconecta el contenedor `proxy` a las 7 automáticamente en cada redeploy
+  del stack `proxy` — ya no hace falta unirlas a mano vía la UI de
+  Portainer (así era antes; ver historial de este archivo).
+- Aparte, `n8n` consume a su vez `ollama_ollama-net` (dueño: `ollama`) para
+  llegar al AI Assistant al modelo local — esa red **no** la toca `proxy`,
+  es privada entre esos dos stacks (`ollama` nunca se expone públicamente).
+- **Orden de despliegue inicial**: `immich_immichapp-net`,
+  `isp-monitor_isp-monitor-net` y `n8n_n8n-net` solo existen después de que
+  `immich-app`, `isp-monitor` y `n8n` respectivamente se despliegan con sus
   servicios unidos a esas redes. Si se redespliega `proxy` antes de eso, el
   deploy falla porque Compose no encuentra la red externa — desplegar
-  siempre el stack dueño primero.
+  siempre el stack dueño primero. A su vez, `n8n` necesita que `ollama` ya
+  esté desplegado (para `ollama_ollama-net`) antes de desplegarse él mismo.
 
 ## Conflictos y pendientes conocidos
 
@@ -91,7 +103,8 @@ standalone) por no usarse más. Queda un solo punto pendiente:
 
 ## Sobre `stack.env`
 
-`immich-app`, `jellyfin` y `nextcloud` usan `env_file` apuntando a un
+`immich-app`, `jellyfin`, `nextcloud` y `n8n` (solo su servicio `n8n`) usan
+`env_file` apuntando a un
 `stack.env` que Portainer genera en la raíz del clon del repositorio (nunca
 versionado en git). Ver `docs/PORTAINER-SETUP.md` para el detalle de cómo
 funciona ese mecanismo y qué hacer si se vuelve a mover alguno de esos

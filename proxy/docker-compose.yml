@@ -41,6 +41,7 @@ services:
       - jellyfin_jellyfin-net
       - immich_immichapp-net
       - isp-monitor_isp-monitor-net
+      - n8n_n8n-net
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
     restart: always
@@ -58,4 +59,6 @@ networks:
   immich_immichapp-net:
     external: true
   isp-monitor_isp-monitor-net:
+    external: true
+  n8n_n8n-net:
     external: true
