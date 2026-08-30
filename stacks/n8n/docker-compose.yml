@@ -115,17 +115,49 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
     restart: unless-stopped
 
+  postgres:
+    image: docker.io/library/postgres:16-alpine
+    container_name: n8n-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ${BASE_DIR}/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - n8n-net
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    restart: unless-stopped
+
   n8n:
     image: docker.io/n8nio/n8n
     container_name: n8n
     depends_on:
       sandbox-api:
         condition: service_healthy
+      postgres:
+        condition: service_healthy
     env_file:
       - ../../stack.env
     environment:
       GENERIC_TIMEZONE: America/Costa_Rica
       TZ: America/Costa_Rica
+
+      # Postgres en vez del sqlite por defecto — mismo servicio, sin
+      # exponerlo fuera de n8n-net.
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: '5432'
+      DB_POSTGRESDB_DATABASE: ${POSTGRES_DB}
+      DB_POSTGRESDB_USER: ${POSTGRES_USER}
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
 
       # Detras del proxy (SWAG), dominio propio en vez de subcarpeta:
       # n8n, igual que immich-app, no soporta bien correr bajo un subpath

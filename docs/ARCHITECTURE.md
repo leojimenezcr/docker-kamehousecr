@@ -26,7 +26,8 @@ referencia — no los lee Portainer automáticamente.
 | jellyfin / transmission (embebido) | 9091:9091, 51413:51413(+udp) | `kamehousecr.ddns.net/transmission` | — | — |
 | jellyfin / tinymediamanager | 4000:4000 | PENDIENTE | — | — |
 | juegos | sin puerto host | `kamehousecr.ddns.net/juegos/` | — | Sitio estático (arcade "Reto de Ciberseguridad", proyecto `juegoscyberseguridad`, repo aparte no versionado acá); nginx sirve `BASE_DIR` tal cual como raíz. Expuesto vía `proxy` (red `juegos-net`, versionada como `external: true`); método de subcarpeta porque el sitio solo usa rutas relativas |
-| n8n / n8n | sin puerto host | `n8nkamehousecr.ddns.net` (dominio propio) | sandbox-api (AI Assistant) | Expuesto vía `proxy` (red `n8n-net`, versionada como `external: true`); dominio propio en vez de subcarpeta porque la doc oficial de n8n no confirma soporte de subpath. AI Assistant apunta al modelo local de `ollama` (red `ollama_ollama-net`, consumida desde este stack) |
+| n8n / n8n | sin puerto host | `n8nkamehousecr.ddns.net` (dominio propio) | sandbox-api (AI Assistant), postgres | Expuesto vía `proxy` (red `n8n-net`, versionada como `external: true`); dominio propio en vez de subcarpeta porque la doc oficial de n8n no confirma soporte de subpath. AI Assistant apunta al modelo local de `ollama` (red `ollama_ollama-net`, consumida desde este stack) |
+| n8n / postgres | sin puerto host | — | — | Base de datos de n8n (Postgres, en vez del sqlite por defecto) |
 | n8n / sandbox-certs | sin puerto host | — | — | Init container, corre una vez y termina; genera certificados mTLS del sandbox |
 | n8n / sandbox-api | sin puerto host | — | sandbox-certs | Control plane del sandbox de ejecución de código del AI Assistant; sin watchtower ni `env_file` completo (componente sensible) |
 | n8n / sandbox-runner-1 | sin puerto host | — | sandbox-api | `privileged: true` (Docker-in-Docker); sin watchtower, actualización manual |

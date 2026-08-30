@@ -5,9 +5,10 @@ Editor/motor de automatizaciones n8n (community), con el **AI Assistant**
 activado y apuntando a un modelo servido localmente por el stack `ollama`
 en vez de un proveedor en la nube (OpenAI/Anthropic/OpenRouter). Incluye el
 stack de sandbox oficial que el AI Assistant necesita para ejecutar código
-(`sandbox-certs`, `sandbox-api`, `sandbox-runner-1`) y el backend de
-búsqueda web `searxng`, tal como los arma la
-[guía oficial de docker-compose de n8n](https://docs.n8n.io/deploy/host-n8n/install-options/install-using-docker-compose).
+(`sandbox-certs`, `sandbox-api`, `sandbox-runner-1`), el backend de
+búsqueda web `searxng` y un contenedor propio de Postgres (`postgres`)
+como base de datos de n8n en vez del sqlite por defecto, tal como los arma
+la [guía oficial de docker-compose de n8n](https://docs.n8n.io/deploy/host-n8n/install-options/install-using-docker-compose).
 
 ## Puertos
 Ninguno expuesto al host — a diferencia del compose oficial (que publica
@@ -18,6 +19,7 @@ Ninguno expuesto al host — a diferencia del compose oficial (que publica
 | Variable | Monta en | Descripción |
 |---|---|---|
 | `BASE_DIR` (`/n8n`) | `/home/node/.n8n` | Datos de n8n: workflows, credenciales cifradas, config |
+| `BASE_DIR` (`/postgres`) | `/var/lib/postgresql/data` | Datos de la base de datos Postgres de n8n |
 
 `sandbox-tls` es un volumen Docker nombrado (no bind mount) con los
 certificados mTLS internos del sandbox — se regenera solo si se recrea
@@ -54,6 +56,14 @@ certificado Let's Encrypt que el dominio base.
 - `OLLAMA_MODEL` acá debe ser el mismo valor que el modelo ya descargado en
   el stack `ollama` (variable separada, Portainer no comparte env vars
   entre stacks).
+
+## Migrar un despliegue existente de sqlite a Postgres
+Si este stack ya corría con el sqlite por defecto (sin `DB_TYPE` en el
+compose), pasar a Postgres arranca una base nueva y vacía — n8n no migra
+datos automáticamente entre motores. Antes de redesplegar con este cambio,
+exportar los workflows/credenciales existentes desde la UI (o respaldar
+`${BASE_DIR}/n8n/database.sqlite`) y volver a importarlos ya con Postgres
+activo.
 
 ## Componente sensible: `sandbox-runner-1`
 Corre con `privileged: true` (Docker-in-Docker) — equivalente a root en el
