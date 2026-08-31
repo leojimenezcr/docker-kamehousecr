@@ -68,6 +68,10 @@ certificado Let's Encrypt que el dominio base.
 - `OLLAMA_MODEL` acá debe ser el mismo valor que el modelo ya descargado en
   el stack `ollama` (variable separada, Portainer no comparte env vars
   entre stacks).
+- El compose fija `OPENAI_API_KEY` con un valor dummy hardcodeado (no es
+  secreto real): el cliente OpenAI que usa el AI Assistant exige una key
+  no vacía aunque el endpoint sea Ollama local — sin esto falla con
+  `Error: OpenAI API key is missing`. Ollama no valida el valor.
 
 ## Migrar un despliegue existente de sqlite a Postgres
 Si este stack ya corría con el sqlite por defecto (sin `DB_TYPE` en el

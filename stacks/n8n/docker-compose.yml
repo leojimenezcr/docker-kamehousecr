@@ -192,6 +192,10 @@ services:
       # despliegue y ajustar si no conecta.
       N8N_INSTANCE_AI_MODEL: openai/${OLLAMA_MODEL}
       N8N_INSTANCE_AI_MODEL_URL: http://ollama:11434/v1
+      # El cliente OpenAI que usa el AI Assistant exige una API key no
+      # vacia aunque el endpoint sea Ollama local — Ollama no la valida,
+      # es solo para que el SDK no rechace la llamada de entrada.
+      OPENAI_API_KEY: ollama-local-no-se-valida
     volumes:
       - ${BASE_DIR}/n8n:/home/node/.n8n
     networks:
