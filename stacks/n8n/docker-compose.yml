@@ -108,7 +108,13 @@ services:
     environment:
       SEARXNG_SECRET: ${SEARXNG_SECRET}
     volumes:
-      - ./searxng-settings.yml:/etc/searxng/settings.yml:ro
+      # Montado desde BASE_DIR (no ./searxng-settings.yml del repo): el
+      # clon que Portainer hace por GitOps puede quedar con ese path
+      # convertido en directorio por Docker (si el archivo no existia ahi
+      # al primer arranque) y un `git pull` sin commits nuevos no lo
+      # restaura solo. Copiar el archivo de este repo a
+      # ${BASE_DIR}/searxng-settings.yml a mano en el host.
+      - ${BASE_DIR}/searxng-settings.yml:/etc/searxng/settings.yml:ro
     networks:
       - n8n-net
     labels:

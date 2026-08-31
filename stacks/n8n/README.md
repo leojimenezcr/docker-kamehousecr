@@ -20,10 +20,22 @@ Ninguno expuesto al host — a diferencia del compose oficial (que publica
 |---|---|---|
 | `BASE_DIR` (`/n8n`) | `/home/node/.n8n` | Datos de n8n: workflows, credenciales cifradas, config |
 | `BASE_DIR` (`/postgres`) | `/var/lib/postgresql/data` | Datos de la base de datos Postgres de n8n |
+| `BASE_DIR` (`/searxng-settings.yml`) | `/etc/searxng/settings.yml` (ro) | Config de SearXNG — copiar a mano el archivo `searxng-settings.yml` de esta carpeta del repo a `${BASE_DIR}/searxng-settings.yml` en el host antes del primer deploy |
 
 `sandbox-tls` es un volumen Docker nombrado (no bind mount) con los
 certificados mTLS internos del sandbox — se regenera solo si se recrea
 desde cero (no hace falta respaldarlo).
+
+`searxng-settings.yml` se monta desde `BASE_DIR` y no directo desde el
+repo (`./searxng-settings.yml`) porque el clon que Portainer hace por
+GitOps puede terminar con ese path convertido en un directorio vacío: si
+el archivo no estaba ahí en el primer `docker compose up` (por ejemplo,
+un deploy que corrió antes de que el commit con el archivo llegara),
+Docker crea un directorio en su lugar, y un `git pull` sin commits nuevos
+no lo repara solo (git no ve drift si no hay nada nuevo que traer). Si se
+edita el contenido del `searxng-settings.yml` de este repo, hay que volver
+a copiarlo a mano a `${BASE_DIR}/searxng-settings.yml` en el host — no se
+sincroniza solo con el redeploy de Portainer.
 
 ## Depende de
 - `ollama` (vía la red externa `ollama_ollama-net`) para el modelo del AI
