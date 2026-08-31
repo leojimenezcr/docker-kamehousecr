@@ -28,11 +28,10 @@ consume como `external: true` (versionada, sin pasos manuales en la UI).
 `nextcloud` (asumido = nombre de carpeta, verificar contra la UI real).
 
 ## Variables de entorno
-Este stack usa `env_file: ../../stack.env` — ver aviso crítico en
-`../../docs/PORTAINER-SETUP.md` sobre la ruta relativa de ese archivo tras la
-reorganización. Ver también `.env.example` en esta carpeta.
+Este stack usa `env_file: ../../stack.env` — ver `../../docs/PORTAINER-SETUP.md`
+sobre cómo ajustar la ruta relativa si se mueve el `docker-compose.yml`. Ver
+también `.env.example` en esta carpeta.
 
 ## Notas
 `Dockerfile` en esta carpeta no está referenciado por `build:` en el
-compose (usa `image: nextcloud:latest` directo) — se preserva tal cual, sin
-tocar.
+compose (usa `image: nextcloud:latest` directo).

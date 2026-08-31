@@ -1,28 +1,20 @@
 # proxy/conf.d
 
-Acá van los server blocks de nginx, uno por dominio/servicio.
+Server blocks de nginx, uno por dominio/servicio.
 
-`default.conf` es un **snapshot versionado real** de la config de SWAG que
-corre hoy en el servidor (copiado manualmente desde el host) — define el
-dominio base (`kamehousecr.ddns.net`) con los `location` block por
+`default.conf` es un snapshot versionado de la config real de SWAG en el
+servidor: dominio base (`kamehousecr.ddns.net`) con `location` block por
 servicio (portainer, jellyfin, navidrome, nextcloud, transmission, grafana,
-prometheus vía el subfolder method), y además un segundo `server` block en
-el mismo archivo
-para `photoskamehousecr.ddns.net` (dominio propio de `immich-app`, no
-subcarpeta — Immich no soporta bien reverse proxy con subpath). Ver
-`../../docs/ARCHITECTURE.md` para el mapeo de dominios que se extrajo de
-este archivo.
+prometheus vía subfolder method), más un segundo `server` block para
+`photoskamehousecr.ddns.net` (dominio propio de `immich-app`). Ver
+`../../docs/ARCHITECTURE.md` para el mapeo completo de dominios.
 
-**Importante**: `proxy/docker-compose.yml` todavía **no monta este archivo**
-dentro del contenedor — SWAG en el servidor sigue leyendo su propia copia
-real desde `${BASE_DIR}/nginx/site-confs/default.conf` (dentro del
-contenedor: `/config/nginx/site-confs/default.conf`). `default.conf` está
-en git como referencia y backup versionado, no es (todavía) la fuente de
-verdad que usa el contenedor en vivo. Cuando se quiera que sí lo sea,
-`proxy/docker-compose.yml` deberá agregar un bind mount adicional de este
-archivo puntual sobre esa ruta — no de toda la carpeta `nginx/` del host,
-que tiene mucho más contenido gestionado por SWAG (certificados, claves,
-fail2ban, etc.) ajeno a este repo.
+`proxy/docker-compose.yml` **no monta este archivo** dentro del
+contenedor — SWAG sigue leyendo su propia copia desde
+`${BASE_DIR}/nginx/site-confs/default.conf` en el host
+(`/config/nginx/site-confs/default.conf` dentro del contenedor).
+`default.conf` es referencia/backup versionado, no la fuente en vivo. Ver
+`../README.md` para cómo montarlo si se necesita.
 
-Ver `scripts/sync-proxy-conf.sh` (raíz del repo) para sincronizar este
-archivo puntual contra el host real.
+`scripts/sync-proxy-conf.sh` (raíz del repo) sincroniza este archivo
+puntual contra el host real.

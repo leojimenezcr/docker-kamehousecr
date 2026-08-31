@@ -26,15 +26,11 @@ Ninguno expuesto al host — a diferencia del compose oficial (que publica
 certificados mTLS internos del sandbox — se regenera solo si se recrea
 desde cero (no hace falta respaldarlo).
 
-`searxng-settings.yml` se monta desde `BASE_DIR` y no directo desde el
-repo (`./searxng-settings.yml`) porque el clon que Portainer hace por
-GitOps puede terminar con ese path convertido en un directorio vacío: si
-el archivo no estaba ahí en el primer `docker compose up` (por ejemplo,
-un deploy que corrió antes de que el commit con el archivo llegara),
-Docker crea un directorio en su lugar, y un `git pull` sin commits nuevos
-no lo repara solo (git no ve drift si no hay nada nuevo que traer). Si se
-edita el contenido del `searxng-settings.yml` de este repo, hay que volver
-a copiarlo a mano a `${BASE_DIR}/searxng-settings.yml` en el host — no se
+`searxng-settings.yml` se monta desde `BASE_DIR`, no directo desde el repo
+(`./searxng-settings.yml`): si el archivo no existe ahí en el primer
+`docker compose up`, Docker crea un directorio vacío en su lugar, y un
+`git pull` no lo repara. Si se edita el `searxng-settings.yml` del repo,
+copiarlo a mano a `${BASE_DIR}/searxng-settings.yml` en el host — no se
 sincroniza solo con el redeploy de Portainer.
 
 ## Depende de
@@ -44,16 +40,12 @@ sincroniza solo con el redeploy de Portainer.
 - `proxy` para salir a internet — requiere que `n8nkamehousecr.ddns.net`
   esté en `EXTRA_DOMAINS` del stack `proxy` (ver más abajo).
 
-## Dominio: por qué uno propio y no subcarpeta
-`kamehousecr.ddns.net/n8n/` no se usó porque la documentación oficial de
-n8n no confirma soporte de subpath/subcarpeta (solo documenta dominio raíz
-o subdominio dedicado) — mismo motivo por el que `immich-app` ya usa un
-dominio propio en este repo (`photoskamehousecr.ddns.net`). Se sigue el
-mismo patrón: **hay que registrar un tercer hostname gratuito en
-noip.com**, `n8nkamehousecr.ddns.net`, apuntando a la misma IP pública, y
-agregarlo a `EXTRA_DOMAINS` en las variables del stack `proxy` (separado
-por coma del resto, ver `../../proxy/.env.example`). Comparte el mismo
-certificado Let's Encrypt que el dominio base.
+## Dominio
+Dominio propio (`n8nkamehousecr.ddns.net`), no subcarpeta: la doc oficial
+de n8n no confirma soporte de subpath. Requiere el hostname registrado en
+noip.com apuntando a la misma IP pública, agregado a `EXTRA_DOMAINS` en las
+variables del stack `proxy` (ver `../../proxy/.env.example`) — comparte el
+mismo certificado Let's Encrypt que el dominio base.
 
 ## Primer login y AI Assistant
 - n8n ya no usa basic auth: el primer acceso a
@@ -62,9 +54,8 @@ certificado Let's Encrypt que el dominio base.
 - El AI Assistant queda con el módulo habilitado (`N8N_ENABLED_MODULES`) y
   el sandbox conectado, pero **el modelo hay que confirmarlo en la UI**
   después del primer login — el valor de `N8N_INSTANCE_AI_MODEL` en el
-  compose (`openai/${OLLAMA_MODEL}`) es la mejor interpretación posible de
-  la doc oficial para un endpoint local tipo Ollama; si no conecta, ajustar
-  ahí mismo.
+  compose (`openai/${OLLAMA_MODEL}`) apunta al endpoint local de Ollama; si
+  no conecta, ajustar ahí mismo.
 - `OLLAMA_MODEL` acá debe ser el mismo valor que el modelo ya descargado en
   el stack `ollama` (variable separada, Portainer no comparte env vars
   entre stacks).

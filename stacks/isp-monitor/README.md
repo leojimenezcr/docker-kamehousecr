@@ -18,8 +18,7 @@ Monitoreo de conectividad ISP: `blackbox-exporter` (sondas de red),
 
 `blackbox/blackbox.yml` y `prometheus/prometheus.yml` viven en esta misma
 carpeta como referencia versionada; `prometheus.yml` tiene IPs del ISP
-(gateway/DNS) hardcodeadas — fuera de alcance de esta reorganización (no es
-parte del `docker-compose.yml`).
+(gateway/DNS) hardcodeadas (no es parte del `docker-compose.yml`).
 
 ## Depende de
 `grafana` usa `prometheus` como datasource; `prometheus` scrapea

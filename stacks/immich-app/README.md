@@ -34,6 +34,6 @@ consuma como `external: true`, o el deploy de `proxy` va a fallar.
 `immich-app` (asumido = nombre de carpeta, verificar contra la UI real).
 
 ## Variables de entorno
-Este stack usa `env_file: ../../stack.env` — ver aviso crítico en
-`../../docs/PORTAINER-SETUP.md` sobre la ruta relativa de ese archivo tras la
-reorganización. Ver también `.env.example` en esta carpeta.
+Este stack usa `env_file: ../../stack.env` — ver `../../docs/PORTAINER-SETUP.md`
+sobre cómo ajustar la ruta relativa si se mueve el `docker-compose.yml`. Ver
+también `.env.example` en esta carpeta.
