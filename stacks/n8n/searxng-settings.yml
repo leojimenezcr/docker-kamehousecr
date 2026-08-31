@@ -1,8 +1,0 @@
-# Config minima de SearXNG requerida por el AI Assistant de n8n para
-# busqueda web, tal como la documenta la guia oficial de docker-compose de
-# n8n: https://docs.n8n.io/deploy/host-n8n/install-options/install-using-docker-compose
-use_default_settings: true
-search:
-  formats:
-    - html
-    - json

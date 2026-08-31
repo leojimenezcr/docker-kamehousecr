@@ -1,14 +1,8 @@
 # n8n
 
 ## Qué hace
-Editor/motor de automatizaciones n8n (community), con el **AI Assistant**
-activado y apuntando a un modelo servido localmente por el stack `ollama`
-en vez de un proveedor en la nube (OpenAI/Anthropic/OpenRouter). Incluye el
-stack de sandbox oficial que el AI Assistant necesita para ejecutar código
-(`sandbox-certs`, `sandbox-api`, `sandbox-runner-1`), el backend de
-búsqueda web `searxng` y un contenedor propio de Postgres (`postgres`)
-como base de datos de n8n en vez del sqlite por defecto, tal como los arma
-la [guía oficial de docker-compose de n8n](https://docs.n8n.io/deploy/host-n8n/install-options/install-using-docker-compose).
+Editor/motor de automatizaciones n8n (community), con un contenedor propio
+de Postgres (`postgres`) como base de datos en vez del sqlite por defecto.
 
 ## Puertos
 Ninguno expuesto al host — a diferencia del compose oficial (que publica
@@ -20,23 +14,8 @@ Ninguno expuesto al host — a diferencia del compose oficial (que publica
 |---|---|---|
 | `BASE_DIR` (`/n8n`) | `/home/node/.n8n` | Datos de n8n: workflows, credenciales cifradas, config |
 | `BASE_DIR` (`/postgres`) | `/var/lib/postgresql/data` | Datos de la base de datos Postgres de n8n |
-| `BASE_DIR` (`/searxng-settings.yml`) | `/etc/searxng/settings.yml` (ro) | Config de SearXNG — copiar a mano el archivo `searxng-settings.yml` de esta carpeta del repo a `${BASE_DIR}/searxng-settings.yml` en el host antes del primer deploy |
-
-`sandbox-tls` es un volumen Docker nombrado (no bind mount) con los
-certificados mTLS internos del sandbox — se regenera solo si se recrea
-desde cero (no hace falta respaldarlo).
-
-`searxng-settings.yml` se monta desde `BASE_DIR`, no directo desde el repo
-(`./searxng-settings.yml`): si el archivo no existe ahí en el primer
-`docker compose up`, Docker crea un directorio vacío en su lugar, y un
-`git pull` no lo repara. Si se edita el `searxng-settings.yml` del repo,
-copiarlo a mano a `${BASE_DIR}/searxng-settings.yml` en el host — no se
-sincroniza solo con el redeploy de Portainer.
 
 ## Depende de
-- `ollama` (vía la red externa `ollama_ollama-net`) para el modelo del AI
-  Assistant — **desplegar `ollama` primero**, y tener el modelo ya
-  descargado con `ollama pull` antes de activar el AI Assistant en la UI.
 - `proxy` para salir a internet — requiere que `n8nkamehousecr.ddns.net`
   esté en `EXTRA_DOMAINS` del stack `proxy` (ver más abajo).
 
@@ -47,22 +26,10 @@ noip.com apuntando a la misma IP pública, agregado a `EXTRA_DOMAINS` en las
 variables del stack `proxy` (ver `../../proxy/.env.example`) — comparte el
 mismo certificado Let's Encrypt que el dominio base.
 
-## Primer login y AI Assistant
-- n8n ya no usa basic auth: el primer acceso a
-  `https://n8nkamehousecr.ddns.net/` pide crear la cuenta *owner* desde la
-  propia UI.
-- El AI Assistant queda con el módulo habilitado (`N8N_ENABLED_MODULES`) y
-  el sandbox conectado, pero **el modelo hay que confirmarlo en la UI**
-  después del primer login — el valor de `N8N_INSTANCE_AI_MODEL` en el
-  compose (`openai/${OLLAMA_MODEL}`) apunta al endpoint local de Ollama; si
-  no conecta, ajustar ahí mismo.
-- `OLLAMA_MODEL` acá debe ser el mismo valor que el modelo ya descargado en
-  el stack `ollama` (variable separada, Portainer no comparte env vars
-  entre stacks).
-- El compose fija `OPENAI_API_KEY` con un valor dummy hardcodeado (no es
-  secreto real): el cliente OpenAI que usa el AI Assistant exige una key
-  no vacía aunque el endpoint sea Ollama local — sin esto falla con
-  `Error: OpenAI API key is missing`. Ollama no valida el valor.
+## Primer login
+n8n ya no usa basic auth: el primer acceso a
+`https://n8nkamehousecr.ddns.net/` pide crear la cuenta *owner* desde la
+propia UI.
 
 ## Migrar un despliegue existente de sqlite a Postgres
 Si este stack ya corría con el sqlite por defecto (sin `DB_TYPE` en el
@@ -71,15 +38,6 @@ datos automáticamente entre motores. Antes de redesplegar con este cambio,
 exportar los workflows/credenciales existentes desde la UI (o respaldar
 `${BASE_DIR}/n8n/database.sqlite`) y volver a importarlos ya con Postgres
 activo.
-
-## Componente sensible: `sandbox-runner-1`
-Corre con `privileged: true` (Docker-in-Docker) — equivalente a root en el
-host. Por eso, a diferencia del resto de servicios de este repo, **no
-lleva el label de watchtower**: se actualiza a mano, revisando el
-changelog de `n8n-sandbox-service` antes de subir de versión. `sandbox-api`
-tampoco lo lleva por la misma razón (es su control plane). Ninguno de los
-dos recibe `env_file` completo — solo las variables puntuales que
-necesitan, explícitas en el compose.
 
 ## Nombre del stack en Portainer
 `n8n` — fijado explícito con `name: n8n` en el compose (no depende del

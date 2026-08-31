@@ -21,8 +21,7 @@ Portainer UI → Stacks → `<nombre>` (o "Add stack" si es nuevo) → tipo
 ## Sobre `stack.env` y `env_file`
 
 Los stacks `immich-app`, `jellyfin`, `nextcloud` y `n8n` (solo su servicio
-`n8n`, no `sandbox-api`/`sandbox-runner-1` — ver `stacks/n8n/README.md`)
-usan `env_file: ../../stack.env` en su `docker-compose.yml`. Ese `stack.env`
+`n8n`) usan `env_file: ../../stack.env` en su `docker-compose.yml`. Ese `stack.env`
 **no es un archivo que haya que crear a mano ni versionar en git**:
 Portainer lo genera automáticamente cada vez que se guardan variables en la
 sección "Environment variables" de la UI de un stack con repositorio Git,
@@ -132,10 +131,9 @@ el stack).
 | isp-monitor | `stacks/isp-monitor/docker-compose.yml` | `BASE_DIR`, `GF_SECURITY_ADMIN_USER`, `GF_SECURITY_ADMIN_PASSWORD`. Grafana y Prometheus salen por `/grafana/` y `/prometheus/` vía `proxy` (dominio hardcodeado en el compose, no es variable) |
 | jellyfin | `stacks/jellyfin/docker-compose.yml` | `BASE_DIR`, `MEDIA_DIR`, `TRANSMISSION_USER`, `TRANSMISSION_PASS`, `TINYMEDIAMANAGER_PASSWORD`. **Ver `env_file` arriba.** |
 | juegos | `stacks/juegos/docker-compose.yml` | `BASE_DIR` (contenido del sitio, sincronizado a mano desde el proyecto `juegoscyberseguridad` — ver `stacks/juegos/README.md`). Sale por `/juegos/` vía `proxy` |
-| n8n | `stacks/n8n/docker-compose.yml` | `BASE_DIR`, `N8N_ENCRYPTION_KEY`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `SANDBOX_API_KEYS`, `N8N_INSTANCE_AI_SANDBOX_API_KEY` (mismo valor que `SANDBOX_API_KEYS`), `SANDBOX_API_RUNNER_REGISTRATION_TOKEN`, `SANDBOX_API_RUNNER_API_KEY`, `SEARXNG_SECRET`, `OLLAMA_MODEL` (debe coincidir con el modelo descargado en `ollama`). Sale por `n8nkamehousecr.ddns.net` (dominio propio, en `EXTRA_DOMAINS` de `proxy`). **Ver `env_file` arriba** (solo el servicio `n8n`). **Desplegar `ollama` antes que este stack.** |
+| n8n | `stacks/n8n/docker-compose.yml` | `BASE_DIR`, `N8N_ENCRYPTION_KEY`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`. Sale por `n8nkamehousecr.ddns.net` (dominio propio, en `EXTRA_DOMAINS` de `proxy`). **Ver `env_file` arriba** (solo el servicio `n8n`). |
 | navidrome | `stacks/navidrome/docker-compose.yml` | `BASE_DIR`, `MEDIA_DIR`, `ND_LASTFM_APIKEY`, `ND_LASTFM_SECRET` |
 | nextcloud | `stacks/nextcloud/docker-compose.yml` | `BASE_DIR` (contiene `nextclouddata/` y `nextclouddb/`), `MYSQL_HOST`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_ROOT_PASSWORD`. **Ver `env_file` arriba.** |
-| ollama | `stacks/ollama/docker-compose.yml` | `BASE_DIR`. Modelo se descarga a mano tras el deploy (`ollama pull`, ver `stacks/ollama/README.md`) — no hay variable que lo automatice |
 | portainer | `stacks/portainer/docker-compose.yml` | (ninguna) |
 | proxy | `proxy/docker-compose.yml` | `BASE_DIR` (se monta completa, sin subcarpeta), `URL`, `EMAIL`, `EXTRA_DOMAINS` (hoy: `photoskamehousecr.ddns.net,n8nkamehousecr.ddns.net`, para immich-app y n8n) |
 | watchtower | `stacks/watchtower/docker-compose.yml` | (ninguna) |

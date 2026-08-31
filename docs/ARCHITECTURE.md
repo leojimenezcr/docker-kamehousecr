@@ -26,17 +26,12 @@ referencia — no los lee Portainer automáticamente.
 | jellyfin / transmission (embebido) | 9091:9091, 51413:51413(+udp) | `kamehousecr.ddns.net/transmission` | — | — |
 | jellyfin / tinymediamanager | 4000:4000 | PENDIENTE | — | — |
 | juegos | sin puerto host | `kamehousecr.ddns.net/juegos/` | — | Sitio estático (arcade "Reto de Ciberseguridad", proyecto `juegoscyberseguridad`, repo aparte no versionado acá); nginx sirve `BASE_DIR` tal cual como raíz. Expuesto vía `proxy` (red `juegos-net`, versionada como `external: true`); método de subcarpeta porque el sitio solo usa rutas relativas |
-| n8n / n8n | sin puerto host | `n8nkamehousecr.ddns.net` (dominio propio) | sandbox-api (AI Assistant), postgres | Expuesto vía `proxy` (red `n8n-net`, versionada como `external: true`); dominio propio en vez de subcarpeta porque la doc oficial de n8n no confirma soporte de subpath. AI Assistant apunta al modelo local de `ollama` (red `ollama_ollama-net`, consumida desde este stack) |
+| n8n / n8n | sin puerto host | `n8nkamehousecr.ddns.net` (dominio propio) | postgres | Expuesto vía `proxy` (red `n8n-net`, versionada como `external: true`); dominio propio en vez de subcarpeta porque la doc oficial de n8n no confirma soporte de subpath |
 | n8n / postgres | sin puerto host | — | — | Base de datos de n8n (Postgres, en vez del sqlite por defecto) |
-| n8n / sandbox-certs | sin puerto host | — | — | Init container, corre una vez y termina; genera certificados mTLS del sandbox |
-| n8n / sandbox-api | sin puerto host | — | sandbox-certs | Control plane del sandbox de ejecución de código del AI Assistant; sin watchtower ni `env_file` completo (componente sensible) |
-| n8n / sandbox-runner-1 | sin puerto host | — | sandbox-api | `privileged: true` (Docker-in-Docker); sin watchtower, actualización manual |
-| n8n / searxng | sin puerto host | — | — | Backend de búsqueda web del AI Assistant |
 | navidrome | 4533:4533 | `kamehousecr.ddns.net/navidrome/` | — | — |
 | nextcloud | sin puerto host | `kamehousecr.ddns.net/` (location raíz) | nextclouddb, nextcloudredis | Expuesto vía `proxy` (red `nextcloud-net`, versionada como `external: true` en `proxy/docker-compose.yml`) |
 | nextcloud / nextclouddb (mariadb) | sin puerto host | — | — | — |
 | nextcloud / nextcloudredis | sin puerto host | — | — | — |
-| ollama | sin puerto host | — (interno, no expuesto vía proxy) | — | Servidor de modelos LLM locales; solo lo consume `n8n` (AI Assistant) vía `ollama-net`. Inferencia por CPU (host sin GPU dedicada) |
 | portainer | 8000:8000, 9443:9443 | `kamehousecr.ddns.net/portainer/` | — | Dueño de la red externa `portainer_portainer-net` que consume `proxy` |
 | proxy (swag) | 80:80, 443:443 | `kamehousecr.ddns.net` + `photoskamehousecr.ddns.net` + `n8nkamehousecr.ddns.net` (`EXTRA_DOMAINS`, mismo cert) | portainer, nextcloud, navidrome, jellyfin, immich-app, isp-monitor, n8n, juegos (consume la red externa de cada uno) | Único servicio con `networks.external: true`, hacia 8 redes versionadas (ver sección de redes abajo) |
 | watchtower | sin puertos | — | — | Monitorea todos los contenedores con label `com.centurylinklabs.watchtower.enable=true` |
@@ -77,17 +72,12 @@ comparten el mismo certificado Let's Encrypt que el dominio base vía
   `juegos`). Al ser `external`, Compose reconecta el contenedor `proxy` a
   las 8 automáticamente en cada redeploy del stack `proxy` — no hace falta
   unirlas a mano vía la UI de Portainer.
-- Aparte, `n8n` consume a su vez `ollama_ollama-net` (dueño: `ollama`) para
-  llegar al AI Assistant al modelo local — esa red **no** la toca `proxy`,
-  es privada entre esos dos stacks (`ollama` nunca se expone públicamente).
 - **Orden de despliegue inicial**: `immich_immichapp-net`,
   `isp-monitor_isp-monitor-net`, `n8n_n8n-net` y `juegos_juegos-net` solo
   existen después de que `immich-app`, `isp-monitor`, `n8n` y `juegos`
   respectivamente se despliegan con sus servicios unidos a esas redes. Si
   se redespliega `proxy` antes de eso, el deploy falla porque Compose no
-  encuentra la red externa — desplegar siempre el stack dueño primero. A su
-  vez, `n8n` necesita que `ollama` ya esté desplegado (para
-  `ollama_ollama-net`) antes de desplegarse él mismo.
+  encuentra la red externa — desplegar siempre el stack dueño primero.
 
 ## Conflictos y pendientes conocidos
 
